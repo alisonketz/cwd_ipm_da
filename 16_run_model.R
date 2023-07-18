@@ -192,9 +192,9 @@ nimConsts <- list(n_year = n_year,
     sect_sus_mort_postno = d_fit_sus_mort_postno$study_area,
     sect_rec_neg_cens_postno = d_fit_rec_neg_cens_postno$study_area,
     records_cause = records_cause,
-    interval_cause = d_fit_hh$right_period_s - 1,
+    interval_cause = d_fit_hh$right_period_s - 1#,
     # indx_mat_pe_surv = indx_mat_pe_surv,
-    intvl_step_yr = intvl_step_yr_weekly#,
+    # intvl_step_yr = intvl_step_yr_weekly#,
     # num_foi_cal = num_foi_cal
     )
 

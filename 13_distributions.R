@@ -1047,6 +1047,8 @@ dSurvival_sus_draw <- nimble::nimbleFunction(
 
     ntemp <- r_age - e_age
     hazard <- nimNumeric(ntemp)
+    prob <- nimNumeric(ntemp)
+    prob_out <- nimNumeric(ntemp)
     llambda_foi <- nimArray(dim = c(nT_age_surv,
                                     nT_period_overall))
 
@@ -1279,6 +1281,8 @@ dSurvival_sus_mort_postno <- nimble::nimbleFunction(
 
     ntemp <- s_age - e_age
     hazard <- nimNumeric(ntemp)
+    prob <- nimNumeric(ntemp)
+    prob_out <- nimNumeric(ntemp)
     llambda_foi <- nimArray(dim = c(nT_age_surv,
                                     nT_period_overall))
 
@@ -1519,6 +1523,8 @@ dSurvival_rec_neg_cens_postno <- nimble::nimbleFunction(
 
     ntemp <- recap_age - e_age
     hazard <- nimNumeric(ntemp)
+    prob <- nimNumeric(ntemp)
+    prob_out <- nimNumeric(ntemp)
     llambda_foi <- nimArray(dim = c(nT_age_surv,
                                     nT_period_overall))
 
