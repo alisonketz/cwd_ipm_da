@@ -21,7 +21,6 @@
 #                  age_lookup_f = double(1),
 #                  age_lookup_m = double(1),
 #                  period_lookup_foi = double(1),
-
 #                  left_age = double(0),
 #                  left_period = double(0),
 #                  recap_age = double(0),
@@ -48,7 +47,6 @@
 #             hazard[k] <- -exp(llambda_foi[age_lookup_f[left_age:(recap_age - 1)],
 #                 period_lookup_foi[(left_period - nT_period_prestudy_ext):(recap_period - 1 - nT_period_prestudy_ext)]])
 #         }
-#         browser()
 #         prob[1] <- (1 - exp(hazard[1]))
 #         for (j in 2:ntemp) {
 #             prob[j] <- (1 - exp(hazard[j])) * exp(sum(hazard[1:(j - 1)]))

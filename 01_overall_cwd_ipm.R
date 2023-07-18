@@ -9,7 +9,7 @@
 
 rm(list = ls())
 
-setwd("~/Documents/ipm/cwd_ipm_weekly_ew")
+setwd("~/Documents/ipm/cwd_ipm_da")
 
 library(viridis)
 library(RColorBrewer)
@@ -74,24 +74,30 @@ source("06_load_agg_data_aah.R")
 
 source("07_format_data_survival.R")
 
+###########################################################
+### Setup consts etc for running the model
+###########################################################
+
+source("08_prelim_foi.R")
+
+
 ##########################################################
 ### Setup collar data for FOI + Survival
 ##########################################################
 
-source("08_format_data_combine_foi_surv.R")
+source("09_format_data_combine_foi_surv.R")
 
 ##########################################################
 ### Setup collar data for FOI + Survival
 ##########################################################
 
-source("09_format_data_cause.R")
+source("10_format_data_cause.R")
 
 ###########################################################
 ### Setup consts etc for running the model
 ###########################################################
 
-source("10_prelim_survival.R")
-source("11_prelim_foi.R")
+source("11_prelim_survival.R")
 source("12_prelim_aah.R")
 
 ###########################################################
