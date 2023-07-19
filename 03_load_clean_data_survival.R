@@ -844,7 +844,7 @@ d_mort$pc7 <- p_cause_obs[, 7]
 ###
 ###################################################
 
-study_origin <- "1985-05-15"
+study_origin <- "2002-05-15"
 df_cap <- df_cap[order(df_cap$date_cap),]
 df_cap$eweek <- ceiling(interval(study_origin,df_cap$date_cap) / weeks(1))
 df_cap$emonth <- ceiling(interval(study_origin,df_cap$date_cap) / months(1))
@@ -952,18 +952,18 @@ df_cap$recap_disweek[!is.na(df_cap$recap_cwd)] <-
 
 df_cap$recap_disagewk[!is.na(df_cap$recap_cwd)] <-
           df_cap$ageweek_cap[!is.na(df_cap$recap_cwd)] +
-                    interval(df_cap$date_cap[!is.na(df_cap$recap_cwd)],
-                    df_cap$recapdate_cap[!is.na(df_cap$recap_cwd)]) %/% weeks(1)
+                    ceiling(interval(df_cap$date_cap[!is.na(df_cap$recap_cwd)],
+                    df_cap$recapdate_cap[!is.na(df_cap$recap_cwd)]) / weeks(1))
 
 df_cap$recap_dismonth[!is.na(df_cap$recap_cwd)] <-
           df_cap$emonth[!is.na(df_cap$recap_cwd)] +
-              interval(df_cap$date_cap[!is.na(df_cap$recap_cwd)],
-              df_cap$recapdate_cap[!is.na(df_cap$recap_cwd)]) %/% months(1)
+              ceiling(interval(df_cap$date_cap[!is.na(df_cap$recap_cwd)],
+              df_cap$recapdate_cap[!is.na(df_cap$recap_cwd)]) / months(1))
 
 df_cap$recap_disagemth[!is.na(df_cap$recap_cwd)] <- 
           df_cap$agemonth_cap[!is.na(df_cap$recap_cwd)] +
-              interval(df_cap$date_cap[!is.na(df_cap$recap_cwd)],
-              df_cap$recapdate_cap[!is.na(df_cap$recap_cwd)]) %/% months(1)
+              ceiling(interval(df_cap$date_cap[!is.na(df_cap$recap_cwd)],
+              df_cap$recapdate_cap[!is.na(df_cap$recap_cwd)]) / months(1))
 
 low_recap <- d_cap$lowtag[!is.na(d_cap$recapdate)]
 low_recap_neg <- low_recap[!(low_recap %in% df_cap$lowtag[df_cap$recap_cwd==1])]

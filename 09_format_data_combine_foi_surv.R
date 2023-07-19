@@ -446,3 +446,8 @@ d_fit_rec_neg_cens_postno$age2date <- d_fit_rec_neg_cens_postno$left_period_e - 
 n_fit_rec_neg_cens_postno <- nrow(d_fit_rec_neg_cens_postno)
 
 
+
+# #fudging fix periodweek recap is 1 week off for this individual
+# d_fit_rec_pos_cens$periodweek_recap <- d_fit_rec_pos_cens$periodweek_recap -1
+
+

@@ -69,56 +69,25 @@ df_age_before_male$proportion <-
 ###################
 
 prevalence_f_east <- apply(Cage_inf[1, 1, , ], 2, sum) /
-                      apply(Cage[1, 1, , 9:28], 2, sum)
+                      apply(Cage[1, 1, ,], 2, sum)
 prevalence_m_east <- apply(Cage_inf[1, 2, , ], 2, sum) /
-                      apply(Cage[1, 2, , 9:28],2,sum)
-
-df_prev_f_east <- data.frame(x = 2002:2021,
-                    prevalence_f_east = log(prevalence_f_east))
-lm_f_east <- lm(prevalence_f_east ~ x,
-                data = df_prev_f_east)
-# summary(lm_f_east)
-df_prev_m_east <- data.frame(x = 2002:2021, 
-                    prevalence_m_east = log(prevalence_m_east))
-lm_m_east <- lm(prevalence_m_east ~ x,
-                data = df_prev_m_east)
-# summary(lm_m_east)
-
-pred_prev_f_east <- exp(predict(lm_f_east,
-                      newdata = data.frame(x = 1994:2001)))
-pred_prev_m_east <- exp(predict(lm_m_east,
-                      newdata = data.frame(x = 1994:2001)))
+                      apply(Cage[1, 2, ,],2,sum)
 
 ###################
 ### West
 ###################
 
 prevalence_f_west <- apply(Cage_inf[2, 1, , ], 2, sum) /
-                     apply(Cage[2, 1, , 9:28], 2, sum)
+                     apply(Cage[2, 1, ,], 2, sum)
 prevalence_m_west <- apply(Cage_inf[2, 2, , ], 2, sum) /
-                     apply(Cage[2, 2, , 9:28], 2, sum)
+                     apply(Cage[2, 2, ,], 2, sum)
 #tricking prevalence to be super small rather than 0 to fit the log linear model. 
 prevalence_f_west[prevalence_f_west == 0] <- .0000001
 
-df_prev_f_west <- data.frame(x = 2002:2021,
-                    prevalence_f_west = log(prevalence_f_west))
-lm_f_west <- lm(prevalence_f_west ~ x,
-                    data = df_prev_f_west)
-# summary(lm_f_west)
-df_prev_m_west <- data.frame(x = 2002:2021,
-                    prevalence_m_west = log(prevalence_m_west))
-lm_m_west <- lm(prevalence_m_west ~ x,
-                  data = df_prev_m_west)
-# summary(lm_m_west)
-# 
-pred_prev_f_west <- exp(predict(lm_f_west,
-                        newdata = data.frame(x = 1994:2001)))
-pred_prev_m_west <- exp(predict(lm_m_west,
-                        newdata = data.frame(x = 1994:2001)))
-# pred_prev_f_east
-# pred_prev_m_east
-# pred_prev_f_west
-# pred_prev_m_west
+# prevalence_f_east
+# prevalence_m_east
+# prevalence_f_west
+# prevalence_m_west
 
 #############################################################
 ###
@@ -134,7 +103,7 @@ initN_inf <- array(0, dim = c(n_study_area, n_sex, n_agef))
 ### East
 #######################
 
-### Total population initialized from SAK estimate from 1994
+### Total population initialized from observed total harvest 
 init0_east <- c()
 init0_east$female <- female_proportion_early * pop_estimate_east
 init0_east$male <- (1 - female_proportion_early) * pop_estimate_east
@@ -145,49 +114,49 @@ init0_east$male <- (1 - female_proportion_early) * pop_estimate_east
 initN_sus[1, 1, 1] <- init0_east$female *
                    .5 *
                    df_age_before_antlerless$proportion[1] *
-                   (1 - pred_prev_f_east[1])   #F
+                   (1 - prevalence_f_east[1])   #F
 for(a in 2:4){
       initN_sus[1, 1, a] <- init0_east$female *
                          df_age_before_antlerless$proportion[a] *
-                         (1 - pred_prev_f_east[1])   #1,2,3
+                         (1 - prevalence_f_east[1])   #1,2,3
 }
 initN_sus[1, 1, 5] <- init0_east$female * 
                    df_age_before_antlerless$proportion[5] *
                    (2/3) *
-                   (1 - pred_prev_f_east[[1]])  #4
+                   (1 - prevalence_f_east[[1]])  #4
 initN_sus[1, 1, 6] <- init0_east$female *
                    df_age_before_antlerless$proportion[5] *
-                   (1/3) * (1 - pred_prev_f_east[[1]])  #5
+                   (1/3) * (1 - prevalence_f_east[[1]])  #5
 initN_sus[1, 1, 7] <- init0_east$female *
                    df_age_before_antlerless$proportion[6] * 
                    (1/2) * 
-                   (1 - pred_prev_f_east[[1]])  #6
+                   (1 - prevalence_f_east[[1]])  #6
 initN_sus[1, 1, 8] <- init0_east$female *
                    df_age_before_antlerless$proportion[6] *
                    (1/4) *
-                   (1 - pred_prev_f_east[[1]]) #7
+                   (1 - prevalence_f_east[[1]]) #7
 initN_sus[1, 1, 9] <- init0_east$female * 
                    df_age_before_antlerless$proportion[6]*
                    (1/6) *
-                   (1 - pred_prev_f_east[[1]]) #8
+                   (1 - prevalence_f_east[[1]]) #8
 initN_sus[1, 1, 10] <- init0_east$female *
                     df_age_before_antlerless$proportion[6] *
                     (1/12) *
-                    (1 - pred_prev_f_east[[1]])  #9+,same as 6-8, decaying from 6-8
+                    (1 - prevalence_f_east[[1]])  #9+,same as 6-8, decaying from 6-8
 
 ###antlered
 initN_sus[1, 2, 1] <- init0_east$female *
                    .5 *
                    df_age_before_antlerless$proportion[1] *
-                   (1 - pred_prev_m_east[1]) 
+                   (1 - prevalence_m_east[1]) 
 for(a in 2:4){
       initN_sus[1, 2, a] <- init0_east$male *
                          df_age_before_antlered$proportion[a - 1] *
-                         (1 - pred_prev_m_east[1])  #1,2,3,
+                         (1 - prevalence_m_east[1])  #1,2,3,
 }
-initN_sus[1, 2, 5] <- 1 * (1 - pred_prev_m_east[1]) # 4
-initN_sus[1, 2, 6] <- 1 * (1 - pred_prev_m_east[1]) # 5
-initN_sus[1, 2, 7] <- 1 * (1 - pred_prev_m_east[1]) # 6+
+initN_sus[1, 2, 5] <- 1 * (1 - prevalence_m_east[1]) # 4
+initN_sus[1, 2, 6] <- 1 * (1 - prevalence_m_east[1]) # 5
+initN_sus[1, 2, 7] <- 1 * (1 - prevalence_m_east[1]) # 6+
 
 ####################################
 ###infected initial population
@@ -197,50 +166,50 @@ initN_sus[1, 2, 7] <- 1 * (1 - pred_prev_m_east[1]) # 6+
 initN_inf[1, 1, 1] <- init0_east$female *
                    .5 *
                    df_age_before_antlerless$proportion[1] *
-                   (pred_prev_f_east[1])   #F
+                   (prevalence_f_east[1])   #F
 for(a in 2:4){
       initN_inf[1, 1, a] <- init0_east$female *
                          df_age_before_antlerless$proportion[a] *
-                         (pred_prev_f_east[1])   #1,2,3
+                         (prevalence_f_east[1])   #1,2,3
 }
 initN_inf[1, 1, 5] <- init0_east$female *
                    df_age_before_antlerless$proportion[5] *
                    (2 / 3) *
-                   (pred_prev_f_east[[1]])  #4
+                   (prevalence_f_east[[1]])  #4
 initN_inf[1, 1, 6] <- init0_east$female * 
                    df_age_before_antlerless$proportion[5] *
                    (1 / 3) *
-                   (pred_prev_f_east[[1]])  #5
+                   (prevalence_f_east[[1]])  #5
 initN_inf[1, 1, 7] <- init0_east$female *
                    df_age_before_antlerless$proportion[6] *
                    (1 / 2) *
-                   (pred_prev_f_east[[1]])  #6
+                   (prevalence_f_east[[1]])  #6
 initN_inf[1, 1, 8] <- init0_east$female *
                    df_age_before_antlerless$proportion[6] *
                    (1 / 4) *
-                   (pred_prev_f_east[[1]]) #7
+                   (prevalence_f_east[[1]]) #7
 initN_inf[1, 1, 9] <- init0_east$female *
                    df_age_before_antlerless$proportion[6] *
                    (1 / 6) *
-                   (pred_prev_f_east[[1]]) #8
+                   (prevalence_f_east[[1]]) #8
 initN_inf[1, 1, 10] <- init0_east$female *
                     df_age_before_antlerless$proportion[6] *
                     (1 / 12) *
-                    (pred_prev_f_east[[1]])  # 9+, set as same proportion from 6-8
+                    (prevalence_f_east[[1]])  # 9+, set as same proportion from 6-8
  
 ###antlered
 initN_inf[1, 2, 1] <- init0_east$female *
                    .5 *
                    df_age_before_antlerless$proportion[1] *
-                   (pred_prev_m_east[1])  #F
+                   (prevalence_m_east[1])  #F
 for(a in 2:4) {
       initN_inf[1, 2, a] <- init0_east$male *
                          df_age_before_antlered$proportion[a - 1] *
-                         (pred_prev_m_east[1])  #1,2,3
+                         (prevalence_m_east[1])  #1,2,3
 }
-initN_inf[1, 2, 5] <- 1  * (pred_prev_m_east[1])# 4
-initN_inf[1, 2, 6] <- 1  * (pred_prev_m_east[1])# 5
-initN_inf[1, 2, 7] <- 1  * (pred_prev_m_east[1])# 6+
+initN_inf[1, 2, 5] <- 1  * (prevalence_m_east[1])# 4
+initN_inf[1, 2, 6] <- 1  * (prevalence_m_east[1])# 5
+initN_inf[1, 2, 7] <- 1  * (prevalence_m_east[1])# 6+
 
 #######################
 ### West Study Area
@@ -256,49 +225,49 @@ init0_west$male <- (1 - sex_ratio_early) * pop_estimate_west
 initN_sus[2, 1, 1] <- init0_west$female *
                    .5 *
                    df_age_before_antlerless$proportion[1] *
-                   (1 - pred_prev_f_west[1])   #F
+                   (1 - prevalence_f_west[1])   #F
 for(a in 2:4){
       initN_sus[2, 1, a] <- init0_west$female *
                          df_age_before_antlerless$proportion[a] *
-                         (1 - pred_prev_f_west[1])   #1,2,3
+                         (1 - prevalence_f_west[1])   #1,2,3
 }
 initN_sus[2, 1, 5] <- init0_west$female * 
                    df_age_before_antlerless$proportion[5] *
                    (2/3) *
-                   (1 - pred_prev_f_west[[1]])  #4
+                   (1 - prevalence_f_west[[1]])  #4
 initN_sus[2, 1, 6] <- init0_west$female *
                    df_age_before_antlerless$proportion[5] *
-                   (1/3) * (1 - pred_prev_f_west[[1]])  #5
+                   (1/3) * (1 - prevalence_f_west[[1]])  #5
 initN_sus[2, 1, 7] <- init0_west$female *
                    df_age_before_antlerless$proportion[6] * 
                    (1/2) * 
-                   (1 - pred_prev_f_west[[1]])  #6
+                   (1 - prevalence_f_west[[1]])  #6
 initN_sus[2, 1, 8] <- init0_west$female *
                    df_age_before_antlerless$proportion[6] *
                    (1/4) *
-                   (1 - pred_prev_f_west[[1]]) #7
+                   (1 - prevalence_f_west[[1]]) #7
 initN_sus[2, 1, 9] <- init0_west$female * 
                    df_age_before_antlerless$proportion[6]*
                    (1/6) *
-                   (1 - pred_prev_f_west[[1]]) #8
+                   (1 - prevalence_f_west[[1]]) #8
 initN_sus[2, 1, 10] <- init0_west$female *
                     df_age_before_antlerless$proportion[6] *
                     (1/12) *
-                    (1 - pred_prev_f_west[[1]])  #9+,same as 6-8, decaying from 6-8
+                    (1 - prevalence_f_west[[1]])  #9+,same as 6-8, decaying from 6-8
 
 ###antlered
 initN_sus[2, 2, 1] <- init0_west$female *
                    .5 *
                    df_age_before_antlerless$proportion[1] *
-                   (1 - pred_prev_m_west[1]) 
+                   (1 - prevalence_m_west[1]) 
 for(a in 2:4){
       initN_sus[2, 2, a] <- init0_west$male *
                          df_age_before_antlered$proportion[a - 1] *
-                         (1 - pred_prev_m_west[1])  #1,2,3,
+                         (1 - prevalence_m_west[1])  #1,2,3,
 }
-initN_sus[2, 2, 5] <- 1 * (1 - pred_prev_m_west[1]) # 4
-initN_sus[2, 2, 6] <- 1 * (1 - pred_prev_m_west[1]) # 5
-initN_sus[2, 2, 7] <- 1 * (1 - pred_prev_m_west[1]) # 6+
+initN_sus[2, 2, 5] <- 1 * (1 - prevalence_m_west[1]) # 4
+initN_sus[2, 2, 6] <- 1 * (1 - prevalence_m_west[1]) # 5
+initN_sus[2, 2, 7] <- 1 * (1 - prevalence_m_west[1]) # 6+
 
 ####################################
 ###infected initial population
@@ -308,50 +277,50 @@ initN_sus[2, 2, 7] <- 1 * (1 - pred_prev_m_west[1]) # 6+
 initN_inf[2, 1, 1] <- init0_west$female *
                    .5 *
                    df_age_before_antlerless$proportion[1] *
-                   (pred_prev_f_west[1])   #F
+                   (prevalence_f_west[1])   #F
 for(a in 2:4){
       initN_inf[2, 1, a] <- init0_west$female *
                          df_age_before_antlerless$proportion[a] *
-                         (pred_prev_f_west[1])   #1,2,3
+                         (prevalence_f_west[1])   #1,2,3
 }
 initN_inf[2, 1, 5] <- init0_west$female *
                    df_age_before_antlerless$proportion[5] *
                    (2 / 3) *
-                   (pred_prev_f_west[[1]])  #4
+                   (prevalence_f_west[[1]])  #4
 initN_inf[2, 1, 6] <- init0_west$female * 
                    df_age_before_antlerless$proportion[5] *
                    (1 / 3) *
-                   (pred_prev_f_west[[1]])  #5
+                   (prevalence_f_west[[1]])  #5
 initN_inf[2, 1, 7] <- init0_west$female *
                    df_age_before_antlerless$proportion[6] *
                    (1 / 2) *
-                   (pred_prev_f_west[[1]])  #6
+                   (prevalence_f_west[[1]])  #6
 initN_inf[2, 1, 8] <- init0_west$female *
                    df_age_before_antlerless$proportion[6] *
                    (1 / 4) *
-                   (pred_prev_f_west[[1]]) #7
+                   (prevalence_f_west[[1]]) #7
 initN_inf[2, 1, 9] <- init0_west$female *
                    df_age_before_antlerless$proportion[6] *
                    (1 / 6) *
-                   (pred_prev_f_west[[1]]) #8
+                   (prevalence_f_west[[1]]) #8
 initN_inf[2, 1, 10] <- init0_west$female *
                     df_age_before_antlerless$proportion[6] *
                     (1 / 12) *
-                    (pred_prev_f_west[[1]])  # 9+, set as same proportion from 6-8
+                    (prevalence_f_west[[1]])  # 9+, set as same proportion from 6-8
 
 ###antlered
 initN_inf[2, 2, 1] <- init0_west$female *
                    .5 *
                    df_age_before_antlerless$proportion[1] *
-                   (pred_prev_m_west[1])  #F
+                   (prevalence_m_west[1])  #F
 for(a in 2:4) {
       initN_inf[2, 2, a] <- init0_west$male *
                          df_age_before_antlered$proportion[a - 1] *
-                         (pred_prev_m_west[1])  #1,2,3
+                         (prevalence_m_west[1])  #1,2,3
 }
-initN_inf[2, 2, 5] <- 1  * (pred_prev_m_west[1])# 4
-initN_inf[2, 2, 6] <- 1  * (pred_prev_m_west[1])# 5
-initN_inf[2, 2, 7] <- 1  * (pred_prev_m_west[1])# 6+
+initN_inf[2, 2, 5] <- 1  * (prevalence_m_west[1])# 4
+initN_inf[2, 2, 6] <- 1  * (prevalence_m_west[1])# 5
+initN_inf[2, 2, 7] <- 1  * (prevalence_m_west[1])# 6+
 
 
 ################################################
@@ -409,9 +378,9 @@ report_overall_init <- rbeta(1,
                         report_hyp_all[2])
 
 report_init <- rep(report_overall_init, n_year)
-for(y in 23:n_year) {
-    report_init[y] <- rbeta(1, report_hyp_y$alpha[y - 22],
-                               report_hyp_y$beta[y - 22])
+for(y in (n_year-6):n_year) {
+    report_init[y] <- rbeta(1, report_hyp_y$alpha[y - n_year-6-1],
+                               report_hyp_y$beta[y - n_year-6-1])
 }
 
 #########################################################################
@@ -487,11 +456,9 @@ eab_antlered_beta <- gamma.moments(.71, .1015^2)$beta
 ###################################################
 
 d_fit_aah$birthweek <- ceiling(interval(study_origin,
-                                d_fit_aah$birth_date) / weeks(1)) -
-                        nT_period_prestudy_ext
+                                d_fit_aah$birth_date) / weeks(1))
 d_fit_aah$birthmonth <- ceiling(interval(study_origin,
-                                d_fit_aah$birth_date) / months(1)) -
-                        nT_period_prestudy_ext_monthly
+                                d_fit_aah$birth_date) / months(1))
 d_fit_aah$age2date_weeks <- ceiling(interval(study_origin,
                                 d_fit_aah$birth_date) / weeks(1))
 d_fit_aah$age2date_months <- ceiling(interval(study_origin,
@@ -506,11 +473,9 @@ d_fit_aah$study_area <- ifelse(d_fit_aah$study_area == "east", 1, 2)
 ###################################################
 
 d_fit_notest$birthweek <- ceiling(interval(study_origin,
-                                d_fit_notest$birth_date) / weeks(1)) -
-                        nT_period_prestudy_ext
+                                d_fit_notest$birth_date) / weeks(1))
 d_fit_notest$birthmonth <- ceiling(interval(study_origin,
-                                d_fit_notest$birth_date) / months(1)) -
-                        nT_period_prestudy_ext_monthly
+                                d_fit_notest$birth_date) / months(1))
 d_fit_notest$age2date_weeks <- ceiling(interval(study_origin,
                                 d_fit_notest$birth_date) / weeks(1))
 d_fit_notest$age2date_months <- ceiling(interval(study_origin,

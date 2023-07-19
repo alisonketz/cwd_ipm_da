@@ -13,7 +13,7 @@ age_effect_survival_test <- 2*exp(-.09*seq(1:nT_age_surv))
 age_effect_survival_test[600:nT_age_surv] <- .00001*exp(.009*seq(600:nT_age_surv))
 age_effect_survival_test <- age_effect_survival_test- mean(age_effect_survival_test)
 
-period_effect_survival_test <- 1 * sin(2/52 * pi * (1:nT_period_overall_ext)) + rnorm(nT_period_overall_ext,0,.1)
+period_effect_survival_test <- 1 * sin(2/52 * pi * (1:nT_period_overall)) + rnorm(nT_period_overall,0,.1)
 period_effect_survival_test <- period_effect_survival_test - mean(period_effect_survival_test)
 
 ##########################################################################
@@ -28,24 +28,14 @@ m_age_foi <- fit_sum[grep("m_age",rownames(fit_sum))[1:7],1]
 f_age_foi <- fit_sum[grep("f_age",rownames(fit_sum))[1:7],1]
 m_period_foi <- fit_sum[grep("m_time",rownames(fit_sum)),1]
 f_period_foi <- fit_sum[grep("f_time",rownames(fit_sum)),1]
-x <- 2002:2022
-lmfperiod <- lm(f_period_foi~x)
-lmmperiod <- lm(m_period_foi~x)
-pred_foiperiod_f <- predict(lmfperiod,newdata=data.frame(x=1994:2001))
-pred_foiperiod_m <- predict(lmmperiod,newdata=data.frame(x=1994:2001))
-f_period_foi <- c(pred_foiperiod_f,f_period_foi)
-m_period_foi <- c(pred_foiperiod_m,m_period_foi)
 f_period_foi <- f_period_foi[-length(f_period_foi)]
 m_period_foi <- m_period_foi[-length(m_period_foi)]
-
 
 
 
 ##########################################################################
 ### testing based on initial values for mcmc
 ###########################################################################
-
-
 
 beta_male = rnorm(1, -.5, .01)
 beta0_survival_sus = rnorm(1, -8, 0.01)
@@ -109,9 +99,6 @@ space_temp = rnorm(1, -.55, .01)
 space_mix = 1
 
 
-
-
-
 #Period effects for survival from collar data
 period_effect_surv <- c()
 for (t in 1:nT_period_collar) {
@@ -121,17 +108,13 @@ period_effect_surv[t] <- inprod(b_period_survival[1:nknots_period],
 
 source("14_calculations.R")
 #Period effects from aah data
-# period_effect_survival <- rep(NA,nT_period_overall_ext)
+# period_effect_survival <- rep(NA,nT_period_overall)
 
 period_effect_survival_test <- set_period_effects_constant(
     n_year_precollar = n_year_precollar,
-    n_year_precollar_ext = n_year_precollar_ext,
-    n_year_prestudy_ext = n_year_prestudy_ext,
-    nT_period_precollar_ext = nT_period_precollar_ext,
     nT_period_precollar = nT_period_precollar,
     nT_period_collar = nT_period_collar,
-    nT_period_overall_ext = nT_period_overall_ext,
-    nT_period_prestudy_ext = nT_period_prestudy_ext,
+    nT_period_overall = nT_period_overall,
     yr_start = d_fit_season$yr_start[1:n_year],
     yr_end = d_fit_season$yr_end[1:n_year],
     period_effect_surv = period_effect_surv[1:nT_period_collar],

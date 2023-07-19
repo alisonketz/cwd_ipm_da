@@ -7,7 +7,7 @@
 ##############################################################
 
 d_fit_hh <- d_surv[d_surv$censored == 0,]
-d_fit_hh[,1:3] <- d_fit_hh[,1:3] - nT_period_precollar_ext
+d_fit_hh[,1:3] <- d_fit_hh[,1:3] - nT_period_precollar
 
 #females are 0
 #males are 1
@@ -30,15 +30,12 @@ d_huntseason <- read_xlsx(paste0(filepath,"Hunting_SeasonDates.xlsx"),1)
 d_huntseason <- d_huntseason %>% filter(Year > 2016)
 
 ### season is specified from beginning of 
-### the pop model study (May 15, 1994)
+### the pop model study (May 15, 2002)
 ### for the full study
 d_season <- read_xlsx(paste0(filepath,"Hunting_SeasonDates.xlsx"),1)
-d_season <- d_season %>% filter(Year > 1993)
+d_season <- d_season %>% filter(Year > 2001)
 
 
-# startdate <- "2017-01-09"
-startdate <- "1985-05-15"
-n_year <- length(unique(d_season$Year))
 n_year_collar <- 5
 
 startng <- c()
@@ -46,24 +43,24 @@ endng <- c()
 startgun <- c()
 endgun <- c()
 for (i in 1:n_year_collar) {
-    startng[i] <- ceiling(interval(startdate,
+    startng[i] <- ceiling(interval(study_origin,
         min(d_huntseason$OpenDate[d_huntseason$Year ==
                                   (i + 2016)])) / weeks(1)) -
-        nT_period_precollar_ext
-    endng[i] <- ceiling(interval(startdate,
+        nT_period_precollar
+    endng[i] <- ceiling(interval(study_origin,
         max(d_huntseason$CloseDate[d_huntseason$Year ==
                                   (i + 2016)])) / weeks(1)) -
-        nT_period_precollar_ext
-    startgun[i] <- ceiling(interval(startdate,
+        nT_period_precollar
+    startgun[i] <- ceiling(interval(study_origin,
         d_huntseason$OpenDate[d_huntseason$Year ==
                               (i + 2016) &
         d_huntseason$SeasonType == "nineday"]) / weeks(1)) -
-        nT_period_precollar_ext
-    endgun[i] <- ceiling(interval(startdate,
+        nT_period_precollar
+    endgun[i] <- ceiling(interval(study_origin,
         d_huntseason$CloseDate[d_huntseason$Year ==
                                 (i + 2016) &
         d_huntseason$SeasonType == "nineday"]) / weeks(1)) -
-        nT_period_precollar_ext
+        nT_period_precollar
 }
 
 #########################################################################
@@ -82,26 +79,21 @@ for (i in 1:n_year_collar) {
 ### Season indexing across full study timeline
 ### 
 #########################################################################
-
-# study_start2 <- "1994-05-15"
-study_origin <- "1985-05-15"
 season_ng_start <- c()
 season_ng_end <- c()
 for (i in 1:length(unique(d_season$Year))) {
     season_ng_start[i] <- ceiling(interval(study_origin,
         min(d_season$OpenDate[d_season$Year ==
-                                  (i + 1993)])) / weeks(1)) - 
-        nT_period_prestudy_ext
+                                  (i + 2001)])) / weeks(1))
 
     season_ng_end[i] <- ceiling(interval(study_origin,
         max(d_season$CloseDate[d_season$Year ==
-                                  (i + 1993)])) / weeks(1)) -
-        nT_period_prestudy_ext
+                                  (i + 2001)])) / weeks(1))
 }
 
 # pulling out approximate 9 day gun season
 temp <- d_season %>% filter(SeasonType == "nineday")
-nonineday <- c(1994:2021)[which(!(c(1994:2021) %in% temp$Year))]
+nonineday <- c(2002:2021)[which(!(c(2002:2021) %in% temp$Year))]
 temp2 <- d_season %>% 
             filter(Year %in% nonineday) %>% 
             filter(SeasonType != "Archery" &
@@ -116,12 +108,10 @@ season_gun_start <- c()
 season_gun_end <- c()
 for (i in 1:length(unique(temp$Year))) {
     season_gun_start[i] <- ceiling(interval(study_origin,
-          temp$OpenDate[temp$Year == (i + 1993)]) / weeks(1)) - 
-    nT_period_prestudy_ext
+          temp$OpenDate[temp$Year == (i + 2001)]) / weeks(1))
 
     season_gun_end[i] <-  ceiling(interval(study_origin,
-          temp$CloseDate[temp$Year == (i + 1993)]) / weeks(1)) - 
-    nT_period_prestudy_ext
+          temp$CloseDate[temp$Year == (i + 2001)]) / weeks(1))
 }
 
 #########################################################################
@@ -152,23 +142,27 @@ for (i in 1:length(unique(temp$Year))) {
 ###
 #########################################################################
 
-end_dates <- paste(1986:2022,"05","14",sep="-")
-start_date <- "1985-05-15"
-interval_cuts <- floor(interval(start_date,end_dates)/weeks(1))
-(interval_step <- c(diff(interval_cuts),52))
-length(interval_step)
-intvl_step_yearly <- interval_step[(n_year_prestudy_ext + 1):n_year_ext]
-
+end_dates <- paste(2002:2022,"05","14",sep="-")
+interval_cuts <- floor(interval(study_origin,end_dates)/weeks(1))
+(intvl_step_yearly <- c(diff(interval_cuts),52))
 d_fit_season <- matrix(NA, nrow = n_year, ncol = 8)
-for(t in 1:n_year) {
-   d_fit_season[t, ] <- c(intvl_step_yearly[t] * (t - 1) + 1,
+d_fit_season[1, ]  <-  c(1,
+                        season_ng_start[1] - 1,
+                        season_ng_start[1],
+                        season_gun_start[1],
+                        season_gun_end[1],
+                        season_ng_end[1],
+                        season_ng_end[1] + 1,
+                        intvl_step_yearly[1])
+for(t in 2:n_year) {
+   d_fit_season[t, ] <- c(sum(intvl_step_yearly[1:(t-1)]) + 1,
                           season_ng_start[t] - 1,
                           season_ng_start[t],
                           season_gun_start[t],
                           season_gun_end[t],
                           season_ng_end[t],
                           season_ng_end[t] + 1,
-                          intvl_step_yr_weekly * t)#this is changed
+                          sum(intvl_step_yearly[1:(t)]))#this is changed
 }
 
 d_fit_season <- data.frame(d_fit_season)
@@ -181,11 +175,11 @@ colnames(d_fit_season) <- c("yr_start",
                             "post_hunt_start",
                             "yr_end")
 
-d_fit_season$yr_end <- cumsum(intvl_step_yearly)
+# d_fit_season$yr_end <- cumsum(intvl_step_yearly)
 #saving for aah_disease test
 save(d_fit_season, file = paste0(filepath, "d_fit_season.Rdata"))
 
-d_fit_season$year <- 1994:2021
+d_fit_season$year <- 2002:2021
 
 ###
 ### Preliminaries gun season
@@ -198,13 +192,13 @@ for(i in 1:5){
     Z_cause_gun[startgun[i]:endgun[i]] <- 1
 }
 
-Z_overall_ng <- rep(0,nT_period_overall_ext)
-Z_overall_gun <- rep(0,nT_period_overall_ext)
+Z_overall_ng <- rep(0,nT_period_overall)
+Z_overall_gun <- rep(0,nT_period_overall)
 for(i in 1:n_year){
     Z_overall_ng[(d_fit_season$ng_start[i]:
-                  d_fit_season$ng_end[i]) + nT_period_prestudy_ext] <- 1
+                  d_fit_season$ng_end[i])] <- 1
     Z_overall_gun[(d_fit_season$gun_start[i]:
-                   d_fit_season$gun_end[i]) + nT_period_prestudy_ext] <- 1
+                   d_fit_season$gun_end[i])] <- 1
 }
 
 ###
@@ -213,10 +207,10 @@ for(i in 1:n_year){
 ###
 
 Z_overall_gun_collar <- Z_overall_gun
-Z_overall_gun_collar[1:nT_period_precollar_ext] <- 0
+Z_overall_gun_collar[1:nT_period_precollar] <- 0
 
 Z_overall_ng_collar <- Z_overall_ng
-Z_overall_ng_collar[1:nT_period_precollar_ext] <- 0
+Z_overall_ng_collar[1:nT_period_precollar] <- 0
 
 ################################################################
 ###

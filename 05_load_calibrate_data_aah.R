@@ -1451,23 +1451,13 @@ for(i in c(0,1,2,3,4,6,9)){
 
 df_aah_notest <- arrange(df_aah_notest,study_area,year,sex,age)
 
-###################################################################
-###
-### Extracting the early aah data for the 
-### prior on the initial population age structure
-###
-###################################################################
-
-df_age_early <- df_aah_notest[df_aah_notest$year > 1993 & df_aah_notest$year < 2002,]
-df_age_before <- df_aah_notest[df_aah_notest$year > 1983 & df_aah_notest$year < 1994,]
-
 
 ###################################################################
 ###
 ### Aggregating the aah data with the surveillance aah data  
 ###
 ###################################################################
-
+df_age_early <- df_aah_notest[df_aah_notest$year > 1993 & df_aah_notest$year < 2002,]
 #converting study area to numeric
 # df_age_early$study_area <- ifelse(df_age_early$study_area == "east", 1, 2)
 # df_aah_notest$study_area <- ifelse(df_aah_notest$study_area == "east", 1, 2)
@@ -1484,9 +1474,8 @@ for(i in 1:nrow(df_age_sus)){
 }
 
 df_age_sus <- rbind(df_age_early,df_age_sus)
-
-
-
+df_age_sus
+# df_age_inf
 ###################################################################################
 ###
 ### setting up aah harvest data for AAH multinomial 
@@ -1543,7 +1532,7 @@ d_fit_aah$birth_date <- as.Date(d_fit_aah$birth_date)
 #####################################################################################
 
 #comining all age-at-harvest data (tested, pos+neg, not tested)
-d_fit_notest <- df_aah_notest[df_aah_notest$year > 1993,]
+d_fit_notest <- df_aah_notest[df_aah_notest$year > 2002,]
 d_fit_notest$agemonths <- as.factor(d_fit_notest$age)
 d_fit_notest$ageweeks <- as.factor(d_fit_notest$age)
 
@@ -1583,3 +1572,18 @@ for(j in 1:dim(d_fit_notest)[1]) {
 }
 d_fit_notest$birth_date <- as.Date(d_fit_notest$birth_date)
 
+###################################################################
+###
+### Extracting the early aah data for the 
+### prior on the initial population age structure
+###
+###################################################################
+
+# df_age_early <- df_aah_notest[df_aah_notest$year > 1993 & df_aah_notest$year < 2002,]
+# df_age_before <- df_aah_notest[df_aah_notest$year > 1983 & df_aah_notest$year < 1994,]
+
+df_age_before <- d_fit_aah %>% filter(year<2002)
+
+#making it just be greater than 2001 for origin in 2002
+d_fit_aah <- d_fit_aah %>% filter(year>2001)
+df_age_sus <- df_age_sus %>% filter(year>2001)

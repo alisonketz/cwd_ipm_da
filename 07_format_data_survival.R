@@ -12,12 +12,12 @@
 ###########################
 
 #setting the maximum number of periods that are estimated by the collar data
-nT_period_overall_ext <- ceiling(interval("1985-05-15","2022-05-14") / weeks(1))
-nT_period_precollar_ext <- floor(interval("1985-05-15","2017-01-08") / weeks(1))
-nT_period_prestudy_ext <- floor(interval("1985-05-15","1994-05-14") / weeks(1))
-nT_period_collar <- nT_period_overall_ext - nT_period_precollar_ext
-nT_period_overall <- nT_period_overall_ext - nT_period_prestudy_ext
-nT_period_precollar <- nT_period_overall - nT_period_collar
+# nT_period_overall_ext <- ceiling(interval("1985-05-15","2022-05-14") / weeks(1))
+# nT_period_precollar_ext <- floor(interval("1985-05-15","2017-01-08") / weeks(1))
+# nT_period_prestudy_ext <- floor(interval("1985-05-15","1994-05-14") / weeks(1))
+nT_period_overall <- ceiling(interval("2002-05-15","2022-05-14") / weeks(1))
+nT_period_precollar <- floor(interval("2002-05-15","2017-01-08") / weeks(1))
+nT_period_collar <- nT_period_overall - nT_period_precollar
 
 #setting the maximum number of periods that are estimated by the collar data
 # nT_period_collar <- interval("2017-01-09", "2022-05-14") %/% weeks(1)
@@ -56,13 +56,16 @@ nT_period_precollar <- nT_period_overall - nT_period_collar
 
 ###########################
 
+nT_period_overall_monthly <- ceiling(interval("2002-05-15","2022-05-14") / months(1))
+nT_period_precollar_monthly <- floor(interval("2002-05-15","2017-01-08") / months(1))
+nT_period_collar_monthly <- nT_period_overall_monthly - nT_period_precollar_monthly
 
-nT_period_overall_ext_monthly <- ceiling(interval("1985-05-15","2022-05-14") / months(1))
-nT_period_precollar_ext_monthly <- floor(interval("1985-05-15","2017-01-08") / months(1))
-nT_period_prestudy_ext_monthly <- floor(interval("1985-05-15","1994-05-14") / months(1))
-nT_period_collar_monthly <- nT_period_overall_ext_monthly - nT_period_precollar_ext_monthly
-nT_period_overall_monthly <- nT_period_overall_ext_monthly - nT_period_prestudy_ext_monthly
-nT_period_precollar_monthly <- nT_period_overall_monthly - nT_period_collar_monthly
+# nT_period_overall_ext_monthly <- ceiling(interval("1985-05-15","2022-05-14") / months(1))
+# nT_period_precollar_ext_monthly <- floor(interval("1985-05-15","2017-01-08") / months(1))
+# nT_period_prestudy_ext_monthly <- floor(interval("1985-05-15","1994-05-14") / months(1))
+# nT_period_collar_monthly <- nT_period_overall_ext_monthly - nT_period_precollar_ext_monthly
+# nT_period_overall_monthly <- nT_period_overall_ext_monthly - nT_period_prestudy_ext_monthly
+# nT_period_precollar_monthly <- nT_period_overall_monthly - nT_period_collar_monthly
 
 # and then every date of interest is defined in terms of weeks as:
 # week_period <- <- ceiling(interval("1985-05-15","xxxx-xx-xx") / weeks(1))
@@ -76,55 +79,52 @@ nT_period_precollar_monthly <- nT_period_overall_monthly - nT_period_collar_mont
 ### Years
 ###########################
 
-n_year_precollar <- 2017 - 1994
-n_year_precollar_ext <- 2017 - 1985
-n_year_prestudy_ext <- 1994 - 1985
-n_year_ext <- 2022 - 1985
+n_year_precollar <- 2017 - 2002
 
 ########################################
 ### spreadsheet to confirm timeline
 ########################################
 
-#the first birth is in 1985
-# weekly calculation
-timing_df <- data.frame(var = c("nT_period_collar",
-    "nT_period_overall_ext",
-    "nT_period_overall ",
-    "nT_period_precollar ",
-    "nT_period_prestudy_ext ",
-    "nT_period_precollar_ext ",
-    "nT_period_prestudy_ext + nT_period_overall",
-    "n_year",
-    "n_year_ext",
-    "n_year_precollar",
-    "n_year_precollar_ext",
-    "n_year_prestudy_ext"),
-    value = c(nT_period_collar,
-    nT_period_overall_ext,
-    nT_period_overall,
-    nT_period_precollar,
-    nT_period_prestudy_ext,
-    nT_period_precollar_ext,
-    nT_period_prestudy_ext + nT_period_overall,
-    n_year,
-    n_year_ext,
-    n_year_precollar,
-    n_year_precollar_ext,
-    n_year_prestudy_ext),
-    formula = c("interval(2017-01-09, 2022-05-14) %/% weeks(1)",
-    "interval(1985-05-15,2022-05-14) %/% weeks(1)",
-    "interval(1994-05-15, 2022-05-14) %/% weeks(1)",
-    "nT_period_overall - nT_period_collar",
-    "nT_period_overall_ext - nT_period_overall",
-    "nT_period_overall_ext - nT_period_collar",
-    "nT_period_prestudy_ext + nT_period_overall",
-    "2022 - 1994",
-    "2022 - 1985",
-    "2017 - 1994",
-    "2017 - 1985",
-    "1994 - 1985")
-)
-write.csv(timing_df,file="results/timing_params.csv")
+# #the first birth is in 1985
+# # weekly calculation
+# timing_df <- data.frame(var = c("nT_period_collar",
+#     "nT_period_overall_ext",
+#     "nT_period_overall ",
+#     "nT_period_precollar ",
+#     "nT_period_prestudy_ext ",
+#     "nT_period_precollar_ext ",
+#     "nT_period_prestudy_ext + nT_period_overall",
+#     "n_year",
+#     "n_year_ext",
+#     "n_year_precollar",
+#     "n_year_precollar_ext",
+#     "n_year_prestudy_ext"),
+#     value = c(nT_period_collar,
+#     nT_period_overall_ext,
+#     nT_period_overall,
+#     nT_period_precollar,
+#     nT_period_prestudy_ext,
+#     nT_period_precollar_ext,
+#     nT_period_prestudy_ext + nT_period_overall,
+#     n_year,
+#     n_year_ext,
+#     n_year_precollar,
+#     n_year_precollar_ext,
+#     n_year_prestudy_ext),
+#     formula = c("interval(2017-01-09, 2022-05-14) %/% weeks(1)",
+#     "interval(1985-05-15,2022-05-14) %/% weeks(1)",
+#     "interval(1994-05-15, 2022-05-14) %/% weeks(1)",
+#     "nT_period_overall - nT_period_collar",
+#     "nT_period_overall_ext - nT_period_overall",
+#     "nT_period_overall_ext - nT_period_collar",
+#     "nT_period_prestudy_ext + nT_period_overall",
+#     "2022 - 1994",
+#     "2022 - 1985",
+#     "2017 - 1994",
+#     "2017 - 1985",
+#     "1994 - 1985")
+# )
+# write.csv(timing_df,file="results/timing_params.csv")
 
 ########################################################
 ###
@@ -256,9 +256,9 @@ nrow(d_surv[which(is.na(d_surv[,2])),])
 nrow(df_cap) - (nrow(d_cens) + nrow(d_mort))
 
 #Right censor these
-d_surv[which(is.na(d_surv[, 2])), 2] <- nT_period_overall_ext
-d_surv$rmonth[which(d_surv$rmonth == 0)] <- nT_period_overall_ext_monthly
-d_surv$smonth[which(d_surv$smonth == 0)] <- nT_period_overall_ext_monthly
+d_surv[which(is.na(d_surv[, 2])), 2] <- nT_period_overall
+d_surv$rmonth[which(d_surv$rmonth == 0)] <- nT_period_overall_monthly
+d_surv$smonth[which(d_surv$smonth == 0)] <- nT_period_overall_monthly
 
 ###
 ### converting to a data.frame

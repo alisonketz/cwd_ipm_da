@@ -359,6 +359,23 @@ nimble::registerDistributions(list(
 ## for a user-defined distribution
 assign('dSurvival', dSurvival, envir = .GlobalEnv)
 
+# test <- rep(NA,n_fit_sus)
+#   for (i in 1:n_fit_sus){
+#     test[i]  <- dSurvival(d_fit_sus$surv_censor[i],
+#       left = d_fit_sus$left[i],
+#       right = d_fit_sus$right[i],
+#       sex = d_fit_sus$sex[i],
+#       age2date = d_fit_sus$age2date[i],
+#       age_effect = age_effect_survival_test[1:nT_age_surv],
+#       period_effect = period_effect_survival_test[1:nT_period_overall],
+#       nT_age = nT_age_surv,
+#       beta0 = beta0_survival_sus,
+#       beta_male = beta_male,
+#       log=TRUE)
+#   }
+
+# test
+
 ##################################################################
 ###
 ###  User Defined Distribution Age-Period Survival Model
@@ -391,7 +408,6 @@ dSurvival_idead <- nimble::nimbleFunction(
         m_period_foi = double(1),
         nT_period_overall = double(0),
         period_lookup_foi = double(1),
-        nT_period_prestudy_ext = double(0),
         space = double(0),
         age_lookup_f = double(1),
         age_lookup_m = double(1),
@@ -402,40 +418,27 @@ dSurvival_idead <- nimble::nimbleFunction(
     prob <- nimNumeric(ntemp)
     prob_out <- nimNumeric(ntemp)
     hazard <- nimNumeric(ntemp)
-    llambda_foi <- nimArray(dim = c(nT_age_surv,
-                                    nT_period_overall))
     if(sex == 0){
-        for (t in 1:nT_period_overall) {
-            for (i in 1:nT_age_surv) {
-                llambda_foi[i, t] <- f_age_foi[age_lookup_f[i]] +
-                                f_period_foi[period_lookup_foi[t]] +
-                                space
-            }
-        }
-        hazard[1:ntemp] <- -exp(diag(llambda_foi[age_lookup_f[e_age:(s_age - 1)],
-                                (e_period - nT_period_prestudy_ext):
-                                (s_period - 1 - nT_period_prestudy_ext)]))
 
-        prob[1] <- (1 - exp(hazard[1]))
+        hazard[1:ntemp] <- exp(f_age_foi[age_lookup_f[e_age:(s_age - 1)]] +
+            f_period_foi[period_lookup_foi[(e_period):
+                                           (s_period - 1)]] +
+            space)
+
+        prob[1] <- (1 - exp(-hazard[1]))
         for (j in 2:ntemp) {
-            prob[j] <- (1 - exp(hazard[j])) * exp(sum(hazard[1:(j - 1)]))
+            prob[j] <- (1 - exp(-hazard[j])) * exp(sum(-hazard[1:(j - 1)]))
         }
         prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
     } else {
-        for (t in 1:nT_period_overall) {
-            for (i in 1:nT_age_surv) {
-                ### Male
-                llambda_foi[i, t] <- m_age_foi[age_lookup_m[i]] +
-                                m_period_foi[period_lookup_foi[t]] +
-                                space
-            }
-        }
-        hazard[1:ntemp] <- -exp(diag(llambda_foi[age_lookup_m[e_age:(s_age - 1)],
-                                (e_period - nT_period_prestudy_ext):
-                                (s_period - 1 - nT_period_prestudy_ext)]))
-        prob[1] <- (1 - exp(hazard[1]))
+        hazard[1:ntemp] <- exp(m_age_foi[age_lookup_m[e_age:(s_age - 1)]] +
+            m_period_foi[period_lookup_foi[(e_period):
+                                           (s_period - 1)]] +
+            space)
+
+        prob[1] <- (1 - exp(-hazard[1]))
         for (j in 2:ntemp) {
-            prob[j] <- (1 - exp(hazard[j])) * exp(sum(hazard[1:(j - 1)]))
+            prob[j] <- (1 - exp(-hazard[j])) * exp(sum(-hazard[1:(j - 1)]))
         }
         prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
     }
@@ -502,7 +505,6 @@ nimble::registerDistributions(list(
         m_period_foi,
         nT_period_overall,
         period_lookup_foi,
-        nT_period_prestudy_ext,
         space,
         age_lookup_f,
         age_lookup_m
@@ -527,7 +529,6 @@ nimble::registerDistributions(list(
         "m_period_foi = double(1)",
         "nT_period_overall = double(0)",
         "period_lookup_foi = double(1)",
-        "nT_period_prestudy_ext = double(0)",
         "space = double(0)",
         "age_lookup_f = double(1)",
         "age_lookup_m = double(1)"
@@ -563,7 +564,6 @@ assign('dSurvival_idead', dSurvival_idead, envir = .GlobalEnv)
 #         m_period_foi = m_period_foi,
 #         nT_period_overall = nT_period_overall,
 #         period_lookup_foi = period_lookup_foi,
-#         nT_period_prestudy_ext = nT_period_prestudy_ext,
 #         space = space_test[d_fit_idead$study_area[i]],
 #         age_lookup_f = age_lookup_f,
 #         age_lookup_m = age_lookup_m,
@@ -606,7 +606,6 @@ dSurvival_rec_pos_cens <- nimble::nimbleFunction(
         m_period_foi = double(1),
         nT_period_overall = double(0),
         period_lookup_foi = double(1),
-        nT_period_prestudy_ext = double(0),
         space = double(0),
         age_lookup_f = double(1),
         age_lookup_m = double(1),
@@ -617,43 +616,28 @@ dSurvival_rec_pos_cens <- nimble::nimbleFunction(
     prob <- nimNumeric(ntemp)
     prob_out <- nimNumeric(ntemp)
     hazard <- nimNumeric(ntemp)
-    llambda_foi <- nimArray(dim = c(nT_age_surv,
-                                    nT_period_overall))
-    if(sex == 0){
-        for (t in 1:nT_period_overall) {
-            for (i in 1:nT_age_surv) {
-                llambda_foi[i, t] <- f_age_foi[age_lookup_f[i]] +
-                                f_period_foi[period_lookup_foi[t]] +
-                                space
-            }
-        }
-        hazard[1:ntemp] <- -exp(diag(llambda_foi[age_lookup_f[e_age:(recap_age - 1)],
-                                (e_period - nT_period_prestudy_ext):
-                                (recap_period - 1 - nT_period_prestudy_ext)]))
-
-        prob[1] <- (1 - exp(hazard[1]))
+    # if(sex == 0){
+        #  hazard[1:ntemp] <- -exp(f_age_foi[age_lookup_f[e_age:(recap_age - 1)]] +
+        #     f_period_foi[period_lookup_foi[(e_period):
+        #                                    (recap_period - 1)]] +
+        #     space)
+        
+    #     prob[1] <- (1 - exp(hazard[1]))
+    #     for (j in 2:ntemp) {
+    #         prob[j] <- (1 - exp(hazard[j])) * exp(sum(hazard[1:(j - 1)]))
+    #     }
+    #     prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
+    # } else {
+        hazard[1:ntemp] <- exp(m_age_foi[age_lookup_m[e_age:(recap_age - 1)]] +
+            m_period_foi[period_lookup_foi[(e_period):
+                                           (recap_period - 1)]] +
+            space)
+        prob[1] <- (1 - exp(-hazard[1]))
         for (j in 2:ntemp) {
-            prob[j] <- (1 - exp(hazard[j])) * exp(sum(hazard[1:(j - 1)]))
+            prob[j] <- (1 - exp(-hazard[j])) * exp(sum(-hazard[1:(j - 1)]))
         }
         prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
-    } else {
-        for (t in 1:nT_period_overall) {
-            for (i in 1:nT_age_surv) {
-                ### Male
-                llambda_foi[i, t] <- m_age_foi[age_lookup_m[i]] +
-                                m_period_foi[period_lookup_foi[t]] +
-                                space
-            }
-        }
-        hazard[1:ntemp] <- -exp(diag(llambda_foi[age_lookup_m[e_age:(recap_age - 1)],
-                                (e_period - nT_period_prestudy_ext):
-                                (recap_period - 1 - nT_period_prestudy_ext)]))
-        prob[1] <- (1 - exp(hazard[1]))
-        for (j in 2:ntemp) {
-            prob[j] <- (1 - exp(hazard[j])) * exp(sum(hazard[1:(j - 1)]))
-        }
-        prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
-    }
+    # }
     age_add <- rcat(n = 1, prob[1:ntemp])
 
     ###############################################
@@ -715,7 +699,6 @@ nimble::registerDistributions(list(
         m_period_foi,
         nT_period_overall,
         period_lookup_foi,
-        nT_period_prestudy_ext,
         space,
         age_lookup_f,
         age_lookup_m
@@ -740,7 +723,6 @@ nimble::registerDistributions(list(
         "m_period_foi = double(1)",
         "nT_period_overall = double(0)",
         "period_lookup_foi = double(1)",
-        "nT_period_prestudy_ext = double(0)",
         "space = double(0)",
         "age_lookup_f = double(1)",
         "age_lookup_m = double(1)"
@@ -751,7 +733,6 @@ nimble::registerDistributions(list(
 
 ## for a user-defined distribution
 assign('dSurvival_rec_pos_cens', dSurvival_rec_pos_cens, envir = .GlobalEnv)
-
 
 # i=1
 # space_test <- c(0,-.5)
@@ -776,7 +757,6 @@ assign('dSurvival_rec_pos_cens', dSurvival_rec_pos_cens, envir = .GlobalEnv)
 #         m_period_foi = m_period_foi,
 #         nT_period_overall = nT_period_overall,
 #         period_lookup_foi = period_lookup_foi,
-#         nT_period_prestudy_ext = nT_period_prestudy_ext,
 #         space = space_test[d_fit_rec_pos_cens$study_area[i]],
 #         age_lookup_f = age_lookup_f,
 #         age_lookup_m = age_lookup_m,
@@ -819,7 +799,6 @@ dSurvival_rec_pos_mort <- nimble::nimbleFunction(
         m_period_foi = double(1),
         nT_period_overall = double(0),
         period_lookup_foi = double(1),
-        nT_period_prestudy_ext = double(0),
         space = double(0),
         age_lookup_f = double(1),
         age_lookup_m = double(1),
@@ -830,40 +809,25 @@ dSurvival_rec_pos_mort <- nimble::nimbleFunction(
     prob <- nimNumeric(ntemp)
     prob_out <- nimNumeric(ntemp)
     hazard <- nimNumeric(ntemp)
-    llambda_foi <- nimArray(dim = c(nT_age_surv,
-                                    nT_period_overall))
     if(sex == 0){
-        for (t in 1:nT_period_overall) {
-            for (i in 1:nT_age_surv) {
-                llambda_foi[i, t] <- f_age_foi[age_lookup_f[i]] +
-                                f_period_foi[period_lookup_foi[t]] +
-                                space
-            }
-        }
-        hazard[1:ntemp] <- -exp(diag(llambda_foi[age_lookup_f[e_age:(recap_age - 1)],
-                                (e_period - nT_period_prestudy_ext):
-                                (recap_period - 1 - nT_period_prestudy_ext)]))
-
+        hazard[1:ntemp] <- exp(f_age_foi[age_lookup_f[e_age:(recap_age - 1)]] +
+            f_period_foi[period_lookup_foi[(e_period):
+                                           (recap_period - 1)]] +
+            space)
         prob[1] <- (1 - exp(hazard[1]))
         for (j in 2:ntemp) {
             prob[j] <- (1 - exp(hazard[j])) * exp(sum(hazard[1:(j - 1)]))
         }
         prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
     } else {
-        for (t in 1:nT_period_overall) {
-            for (i in 1:nT_age_surv) {
-                ### Male
-                llambda_foi[i, t] <- m_age_foi[age_lookup_m[i]] +
-                                m_period_foi[period_lookup_foi[t]] +
-                                space
-            }
-        }
-        hazard[1:ntemp] <- -exp(diag(llambda_foi[age_lookup_m[e_age:(recap_age - 1)],
-                                (e_period - nT_period_prestudy_ext):
-                                (recap_period - 1 - nT_period_prestudy_ext)]))
-        prob[1] <- (1 - exp(hazard[1]))
+
+        hazard[1:ntemp] <- exp(m_age_foi[age_lookup_m[e_age:(recap_age - 1)]] +
+            m_period_foi[period_lookup_foi[(e_period):
+                                           (recap_period - 1)]] +
+            space)
+        prob[1] <- (1 - exp(-hazard[1]))
         for (j in 2:ntemp) {
-            prob[j] <- (1 - exp(hazard[j])) * exp(sum(hazard[1:(j - 1)]))
+            prob[j] <- (1 - exp(-hazard[j])) * exp(sum(-hazard[1:(j - 1)]))
         }
         prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
     }
@@ -874,7 +838,7 @@ dSurvival_rec_pos_mort <- nimble::nimbleFunction(
     ###############################################
 
     UCH_sus <-nimNumeric(nT_age_surv)
-    for (k in e_age:(e_age + age_add -1)) {
+    for (k in e_age:(e_age + age_add - 1)) {
         UCH_sus[k] <- exp(beta0_survival_sus + 
                       age_effect_survival[k] +
                       period_effect_survival[k + age2date] +
@@ -931,7 +895,6 @@ nimble::registerDistributions(list(
         m_period_foi,
         nT_period_overall,
         period_lookup_foi,
-        nT_period_prestudy_ext,
         space,
         age_lookup_f,
         age_lookup_m
@@ -957,7 +920,6 @@ nimble::registerDistributions(list(
         "m_period_foi = double(1)",
         "nT_period_overall = double(0)",
         "period_lookup_foi = double(1)",
-        "nT_period_prestudy_ext = double(0)",
         "space = double(0)",
         "age_lookup_f = double(1)",
         "age_lookup_m = double(1)"
@@ -993,7 +955,6 @@ assign('dSurvival_rec_pos_mort', dSurvival_rec_pos_mort, envir = .GlobalEnv)
 #         m_period_foi = m_period_foi,
 #         nT_period_overall = nT_period_overall,
 #         period_lookup_foi = period_lookup_foi,
-#         nT_period_prestudy_ext = nT_period_prestudy_ext,
 #         space = space_test[d_fit_rec_pos_mort$study_area[i]],
 #         age_lookup_f = age_lookup_f,
 #         age_lookup_m = age_lookup_m,
@@ -1038,7 +999,6 @@ dSurvival_sus_draw <- nimble::nimbleFunction(
         m_period_foi = double(1),
         nT_period_overall = double(0),
         period_lookup_foi = double(1),
-        nT_period_prestudy_ext = double(0),
         space = double(0),
         age_lookup_f = double(1),
         age_lookup_m = double(1),
@@ -1049,37 +1009,21 @@ dSurvival_sus_draw <- nimble::nimbleFunction(
     hazard <- nimNumeric(ntemp)
     prob <- nimNumeric(ntemp)
     prob_out <- nimNumeric(ntemp)
-    llambda_foi <- nimArray(dim = c(nT_age_surv,
-                                    nT_period_overall))
-
     ################################
     ### First draw if gets infected
     ################################
 
     if(sex == 0){
-        for (t in 1:nT_period_overall) {
-            for (i in 1:nT_age_surv) {
-                llambda_foi[i, t] <- f_age_foi[age_lookup_f[i]] +
-                                f_period_foi[period_lookup_foi[t]] +
-                                space
-            }
-        }
-        hazard[1:ntemp] <- exp(diag(llambda_foi[age_lookup_f[e_age:(r_age - 1)],
-                                (e_period - nT_period_prestudy_ext):
-                                (r_period - 1 - nT_period_prestudy_ext)]))
+        hazard[1:ntemp] <- exp(f_age_foi[age_lookup_f[e_age:(r_age - 1)]] +
+            f_period_foi[period_lookup_foi[(e_period):
+                         (r_period - 1)]] +
+            space)
 
     } else {
-        for (t in 1:nT_period_overall) {
-            for (i in 1:nT_age_surv) {
-                ### Male
-                llambda_foi[i, t] <- m_age_foi[age_lookup_m[i]] +
-                                m_period_foi[period_lookup_foi[t]] +
-                                space
-            }
-        }
-        hazard[1:ntemp] <- exp(diag(llambda_foi[age_lookup_m[e_age:(r_age - 1)],
-                                (e_period - nT_period_prestudy_ext):
-                                (r_period - 1 - nT_period_prestudy_ext)]))
+        hazard[1:ntemp] <- exp(m_age_foi[age_lookup_m[e_age:(r_age - 1)]] +
+            m_period_foi[period_lookup_foi[(e_period):
+                         (r_period - 1)]] +
+            space)
     }
     p_inf <- 1 - exp(-sum(hazard))
     gets_infected <- rbinom(1,1,p_inf)
@@ -1132,7 +1076,7 @@ dSurvival_sus_draw <- nimble::nimbleFunction(
         ### Survival likelihood  - Susceptible portion 
         ###############################################
 
-        UCH_sus <-nimNumeric(nT_age_surv)
+        UCH_sus <- nimNumeric(nT_age_surv)
         for (k in e_age:(r_age - 1)) {
             UCH_sus[k] <- exp(beta0_survival_sus +
                         age_effect_survival[k] +
@@ -1168,7 +1112,6 @@ nimble::registerDistributions(list(
         m_period_foi,
         nT_period_overall,
         period_lookup_foi,
-        nT_period_prestudy_ext,
         space,
         age_lookup_f,
         age_lookup_m
@@ -1192,7 +1135,6 @@ nimble::registerDistributions(list(
         "m_period_foi = double(1)",
         "nT_period_overall = double(0)",
         "period_lookup_foi = double(1)",
-        "nT_period_prestudy_ext = double(0)",
         "space = double(0)",
         "age_lookup_f = double(1)",
         "age_lookup_m = double(1)"
@@ -1203,8 +1145,6 @@ nimble::registerDistributions(list(
 
 ## for a user-defined distribution
 assign('dSurvival_sus_draw', dSurvival_sus_draw, envir = .GlobalEnv)
-
-
 # i=1
 # space_test <- c(0,-.5)
 # starttime <- Sys.time()
@@ -1227,7 +1167,6 @@ assign('dSurvival_sus_draw', dSurvival_sus_draw, envir = .GlobalEnv)
 #         m_period_foi = m_period_foi,
 #         nT_period_overall = nT_period_overall,
 #         period_lookup_foi = period_lookup_foi,
-#         nT_period_prestudy_ext = nT_period_prestudy_ext,
 #         space = space_test[d_fit_sus_draw$study_area[i]],
 #         age_lookup_f = age_lookup_f,
 #         age_lookup_m = age_lookup_m,
@@ -1272,7 +1211,6 @@ dSurvival_sus_mort_postno <- nimble::nimbleFunction(
         m_period_foi = double(1),
         nT_period_overall = double(0),
         period_lookup_foi = double(1),
-        nT_period_prestudy_ext = double(0),
         space = double(0),
         age_lookup_f = double(1),
         age_lookup_m = double(1),
@@ -1283,37 +1221,21 @@ dSurvival_sus_mort_postno <- nimble::nimbleFunction(
     hazard <- nimNumeric(ntemp)
     prob <- nimNumeric(ntemp)
     prob_out <- nimNumeric(ntemp)
-    llambda_foi <- nimArray(dim = c(nT_age_surv,
-                                    nT_period_overall))
 
     ################################
     ### First draw if gets infected
     ################################
 
     if(sex == 0){
-        for (t in 1:nT_period_overall) {
-            for (i in 1:nT_age_surv) {
-                llambda_foi[i, t] <- f_age_foi[age_lookup_f[i]] +
-                                f_period_foi[period_lookup_foi[t]] +
-                                space
-            }
-        }
-        hazard[1:ntemp] <- exp(diag(llambda_foi[age_lookup_f[e_age:(s_age - 1)],
-                                (e_period - nT_period_prestudy_ext):
-                                (s_period - 1 - nT_period_prestudy_ext)]))
-
+         hazard[1:ntemp] <- exp(f_age_foi[age_lookup_f[e_age:(s_age - 1)]] +
+            f_period_foi[period_lookup_foi[(e_period):
+                         (s_period - 1)]] +
+            space)
     } else {
-        for (t in 1:nT_period_overall) {
-            for (i in 1:nT_age_surv) {
-                ### Male
-                llambda_foi[i, t] <- m_age_foi[age_lookup_m[i]] +
-                                m_period_foi[period_lookup_foi[t]] +
-                                space
-            }
-        }
-        hazard[1:ntemp] <- exp(diag(llambda_foi[age_lookup_m[e_age:(s_age - 1)],
-                                (e_period - nT_period_prestudy_ext):
-                                (s_period - 1 - nT_period_prestudy_ext)]))
+        hazard[1:ntemp] <- exp(m_age_foi[age_lookup_m[e_age:(s_age - 1)]] +
+            m_period_foi[period_lookup_foi[(e_period):
+                         (s_period - 1)]] +
+            space)
     }
     p_inf <- 1 - exp(-sum(hazard))
     gets_infected <- rbinom(1,1,p_inf)
@@ -1409,7 +1331,6 @@ nimble::registerDistributions(list(
         m_period_foi,
         nT_period_overall,
         period_lookup_foi,
-        nT_period_prestudy_ext,
         space,
         age_lookup_f,
         age_lookup_m
@@ -1433,7 +1354,6 @@ nimble::registerDistributions(list(
         "m_period_foi = double(1)",
         "nT_period_overall = double(0)",
         "period_lookup_foi = double(1)",
-        "nT_period_prestudy_ext = double(0)",
         "space = double(0)",
         "age_lookup_f = double(1)",
         "age_lookup_m = double(1)"
@@ -1469,7 +1389,6 @@ assign('dSurvival_sus_mort_postno', dSurvival_sus_mort_postno, envir = .GlobalEn
 #         m_period_foi = m_period_foi,
 #         nT_period_overall = nT_period_overall,
 #         period_lookup_foi = period_lookup_foi,
-#         nT_period_prestudy_ext = nT_period_prestudy_ext,
 #         space = space_test[d_fit_sus_mort_postno$study_area[i]],
 #         age_lookup_f = age_lookup_f,
 #         age_lookup_m = age_lookup_m,
@@ -1514,7 +1433,6 @@ dSurvival_rec_neg_cens_postno <- nimble::nimbleFunction(
         m_period_foi = double(1),
         nT_period_overall = double(0),
         period_lookup_foi = double(1),
-        nT_period_prestudy_ext = double(0),
         space = double(0),
         age_lookup_f = double(1),
         age_lookup_m = double(1),
@@ -1525,37 +1443,21 @@ dSurvival_rec_neg_cens_postno <- nimble::nimbleFunction(
     hazard <- nimNumeric(ntemp)
     prob <- nimNumeric(ntemp)
     prob_out <- nimNumeric(ntemp)
-    llambda_foi <- nimArray(dim = c(nT_age_surv,
-                                    nT_period_overall))
 
     ################################
     ### First draw if gets infected
     ################################
 
     if(sex == 0){
-        for (t in 1:nT_period_overall) {
-            for (i in 1:nT_age_surv) {
-                llambda_foi[i, t] <- f_age_foi[age_lookup_f[i]] +
-                                f_period_foi[period_lookup_foi[t]] +
-                                space
-            }
-        }
-        hazard[1:ntemp] <- exp(diag(llambda_foi[age_lookup_f[e_age:(recap_age - 1)],
-                                (e_period - nT_period_prestudy_ext):
-                                (recap_period - 1 - nT_period_prestudy_ext)]))
-
+        hazard[1:ntemp] <- exp(f_age_foi[age_lookup_f[e_age:(recap_age - 1)]] +
+            f_period_foi[period_lookup_foi[(e_period):
+                         (recap_period - 1)]] +
+            space)
     } else {
-        for (t in 1:nT_period_overall) {
-            for (i in 1:nT_age_surv) {
-                ### Male
-                llambda_foi[i, t] <- m_age_foi[age_lookup_m[i]] +
-                                m_period_foi[period_lookup_foi[t]] +
-                                space
-            }
-        }
-        hazard[1:ntemp] <- exp(diag(llambda_foi[age_lookup_m[e_age:(recap_age - 1)],
-                                (e_period - nT_period_prestudy_ext):
-                                (recap_period - 1 - nT_period_prestudy_ext)]))
+        hazard[1:ntemp] <- exp(m_age_foi[age_lookup_m[e_age:(recap_age - 1)]] +
+            m_period_foi[period_lookup_foi[(e_period):
+                         (recap_period - 1)]] +
+            space)
     }
     p_inf <- 1 - exp(-sum(hazard))
     gets_infected <- rbinom(1,1,p_inf)
@@ -1646,7 +1548,6 @@ nimble::registerDistributions(list(
         m_period_foi,
         nT_period_overall,
         period_lookup_foi,
-        nT_period_prestudy_ext,
         space,
         age_lookup_f,
         age_lookup_m
@@ -1672,7 +1573,6 @@ nimble::registerDistributions(list(
         "m_period_foi = double(1)",
         "nT_period_overall = double(0)",
         "period_lookup_foi = double(1)",
-        "nT_period_prestudy_ext = double(0)",
         "space = double(0)",
         "age_lookup_f = double(1)",
         "age_lookup_m = double(1)"
@@ -1683,7 +1583,6 @@ nimble::registerDistributions(list(
 
 ## for a user-defined distribution
 assign('dSurvival_rec_neg_cens_postno', dSurvival_rec_neg_cens_postno, envir = .GlobalEnv)
-
 
 # i=1
 # space_test <- c(0,-.5)
@@ -1709,7 +1608,6 @@ assign('dSurvival_rec_neg_cens_postno', dSurvival_rec_neg_cens_postno, envir = .
 #         m_period_foi = m_period_foi,
 #         nT_period_overall = nT_period_overall,
 #         period_lookup_foi = period_lookup_foi,
-#         nT_period_prestudy_ext = nT_period_prestudy_ext,
 #         space = space_test[d_fit_rec_neg_cens_postno$study_area[i]],
 #         age_lookup_f = age_lookup_f,
 #         age_lookup_m = age_lookup_m,

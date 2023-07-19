@@ -1,141 +1,4 @@
 
-# #############################################################################
-# ###
-# ### For recaptured deer...
-# ### Function to calculate the state transition 
-# ### probability from susceptible to infected
-# ###
-# #############################################################################
-
-# calc_age_inf_add <- nimbleFunction(
-#   run = function(
-#                  f_age = double(1),
-#                  m_age = double(1),
-#                  f_period = double(1),
-#                  m_period = double(1),
-#                  nT_period_overall = double(0),
-#                  period_lookup_foi_study = double(1),
-#                  nT_period_prestudy_ext = double(1),
-#                  nT_age_surv = double(0),
-#                  space = double(0),
-#                  age_lookup_f = double(1),
-#                  age_lookup_m = double(1),
-#                  period_lookup_foi = double(1),
-#                  left_age = double(0),
-#                  left_period = double(0),
-#                  recap_age = double(0),
-#                  recap_period = double(0),
-#                  sex = double(0)
-#                 ) {
-#     returnType(double(0))
-
-#     ntemp <- recap_age - left_age
-#     prob <- nimNumeric(ntemp)
-#     prob_out <- nimNumeric(ntemp)
-#     hazard <- nimNumeric(ntemp)
-#     llambda_foi <- nimArray(NA,dim = c(nT_age_surv,
-#                                        nT_period_overall))
-#     if(sex == 0){
-#         for (t in 1:nT_period_overall) {
-#             for (i in 1:nT_age_surv) {
-#                 llambda_foi[i, t] <- exp(f_age[age_lookup_f[i]] +
-#                                 f_period[period_lookup_foi_study[t]] +
-#                                 space)
-#             }
-#         }
-#         for(k in 1:ntemp) {
-#             hazard[k] <- -exp(llambda_foi[age_lookup_f[left_age:(recap_age - 1)],
-#                 period_lookup_foi[(left_period - nT_period_prestudy_ext):(recap_period - 1 - nT_period_prestudy_ext)]])
-#         }
-#         prob[1] <- (1 - exp(hazard[1]))
-#         for (j in 2:ntemp) {
-#             prob[j] <- (1 - exp(hazard[j])) * exp(sum(hazard[1:(j - 1)]))
-#         }
-#     } else {
-#         for (t in 1:nT_period_overall) {
-#             for (i in 1:nT_age_surv) {
-#                 ### Male
-#                 llambda_foi[i, t] <- exp(f_age[age_lookup_m[i]] +
-#                                 f_period[period_lookup_foi_study[t]] +
-#                                 space)
-
-#             }
-#         }
-#         for(k in 1:ntemp) {
-#             hazard[k] <- -exp(llambda_foi[age_lookup_m[left_age:(recap_age - 1)],
-#                 period_lookup_foi[(left_period - nT_period_prestudy_ext):(recap_period - 1 - nT_period_prestudy_ext)]])
-#         }
-#         prob[1] <- (1 - exp(hazard[1]))
-#         for (j in 2:ntemp) {
-#             prob[j] <- (1 - exp(hazard[j])) * exp(sum(hazard[1:(j - 1)]))
-#         }
-#     }
-#     # prob_total <- sum(1 - prob[1:(ntemp)])
-#     # prob_out[1:ntemp] <- (1 - prob[1:ntemp]) / sum(1 - prob[1:(ntemp)])
-#     # prob_total <- sum(prob[1:(ntemp)])
-#     # prob_out[1:(ntemp)] <- prob[1:(ntemp)]/(prob_total)
-#     age_add <- rcat(n = 1, prob[1:ntemp])
-#     return(age_add)
-#     })
-
-# Ccalc_age_inf_rec <- compileNimble(calc_age_infection)
-
-
-
-
-# calc_age_inf_add(
-#                  f_age = f_age_foi,
-#                  m_age = m_age_foi,
-#                  f_period = f_period_foi,
-#                  m_period = m_period_foi,
-#                  nT_period_overall = nT_period_overall,
-#                  nT_period_prestudy_ext = nT_period_prestudy_ext,
-#                  period_lookup_foi_study = period_lookup_foi_study,
-#                  nT_age_surv = nT_age_surv,
-#                  space = space[d_fit_rec_pos$study_area[i]],
-#                  age_lookup_f = age_lookup_f,
-#                  age_lookup_m = age_lookup_m,
-#                  period_lookup_foi = period_lookup_foi,
-
-#                  left_age = d_fit_rec_pos$left_age_e[1],
-#                  left_period = d_fit_rec_pos$left_period_e[1],
-#                  recap_age = d_fit_rec_pos$ageweek_recap[1],
-#                  recap_period = d_fit_rec_pos$periodweek_recap[1],
-#                  sex = d_fit_rec_pos$sex[1])
-
-
-# calc_age_infection(
-#                               llambda_foi = llambda_foi[1:n_age, 1:n_period, 1:2],
-#                               age_week_indx = age_week_indx[1:nT_age],
-#                               period_week_indx = period_week_indx[1:nT_period],
-#                               left_age = rec_cens_left_age[i],
-#                               left_period = rec_cens_left_period[i],
-#                               recap_age = rec_cens_recap_age[i],
-#                               recap_period = rec_cens_recap_period[i],
-#                               rec_sex = rec_cens_sex[i]
-#                             )
-
-# psi <- Ccalc_infect_prob(age_lookup_f = age_lookup_f,
-#                         age_lookup_m = age_lookup_m,
-#                         n_agef = n_agef,
-#                         n_agem = n_agem,
-#                         yr_start = d_fit_season$yr_start,
-#                         yr_end = d_fit_season$yr_end,
-#                         f_age = f_age_foi,
-#                         m_age = m_age_foi,
-#                         f_period = f_period_foi,
-#                         m_period = m_period_foi,
-#                         nT_period_overall = nT_period_overall,
-#                         nT_period_prestudy_ext = nT_period_prestudy_ext,
-#                         period_lookup_foi_study = period_lookup_foi_study[1:nT_period_overall],
-#                         n_year = n_year,
-#                         n_sex = n_sex,
-#                         n_study_area = n_study_area, 
-#                         space = -.55,
-#                         nT_age_surv_aah_f = nT_age_surv_aah_f,
-#                         nT_age_surv_aah_m = nT_age_surv_aah_m
-#                         )
-
 #######################################################################
 ###
 ### Function to calculate Annual survival probability based on 
@@ -242,7 +105,7 @@ assign("calc_surv_aah", calc_surv_aah, envir = .GlobalEnv)
 #     beta0 = beta0_survival_sus-2,
 #     beta_male = beta_male,
 #     age_effect = age_effect_survival_test,        # length = 962
-#     period_effect = period_effect_survival_test[(nT_period_prestudy_ext + 1):(nT_period_overall_ext)], 
+#     period_effect = period_effect_survival_test[1:nT_period_overall)], 
 # 	yr_start = d_fit_season$yr_start,
 #     yr_end = d_fit_season$yr_end,
 #     n_year = n_year,
@@ -263,7 +126,7 @@ assign("calc_surv_aah", calc_surv_aah, envir = .GlobalEnv)
 #         beta0 = beta0_survival_inf-2,
 #         beta_male = beta_male,
 #         age_effect = age_effect_survival_test,
-#         period_effect = period_effect_survival_test[(nT_period_prestudy_ext + 1):(nT_period_overall_ext)],
+#         period_effect = period_effect_survival_test[(1):(nT_period_overall)],
 #         yr_end = d_fit_season$yr_end,
 #         yr_start = d_fit_season$yr_start,
 #         n_year = n_year,
@@ -443,7 +306,7 @@ assign("calc_surv_harvest", calc_surv_harvest, envir = .GlobalEnv)
 #         beta0 = beta0_survival_sus,
 #         beta_male = beta_male,
 #         age_effect = age_effect_survival_test,
-#         period_effect = period_effect_survival_test[(nT_period_prestudy_ext + 1):(nT_period_overall_ext)], 
+#         period_effect = period_effect_survival_test[(1):(nT_period_overall)], 
 #         n_year = n_year,
 #         n_agef = n_agef,
 #         n_agem = n_agem,
@@ -486,7 +349,7 @@ calc_infect_prob <- nimbleFunction(
                  f_period = double(1),
                  m_period = double(1),
                  nT_period_overall = double(0),
-                 period_lookup_foi_study = double(1),
+                 period_lookup_foi = double(1),
                  n_year = double(0),
                  n_sex = double(0),
                  n_study_area = double(0),
@@ -508,10 +371,10 @@ calc_infect_prob <- nimbleFunction(
             ### Female
             ### East
             gam[1, 1, i, t] <- exp(f_age[age_lookup_f[i]] +
-                               f_period[period_lookup_foi_study[t]])
+                               f_period[period_lookup_foi[t]])
             ### West
             gam[2, 1, i, t] <- exp(f_age[age_lookup_f[i]] +
-                               f_period[period_lookup_foi_study[t]] +
+                               f_period[period_lookup_foi[t]] +
                                space)
 
         }
@@ -519,10 +382,10 @@ calc_infect_prob <- nimbleFunction(
             ### Male
             ### East
             gam[1, 2, i, t] <- exp(m_age[age_lookup_m[i]] +
-                               m_period[period_lookup_foi_study[t]])
+                               m_period[period_lookup_foi[t]])
             ### West
             gam[2, 2, i, t] <- exp(m_age[age_lookup_m[i]] +
-                               m_period[period_lookup_foi_study[t]] +
+                               m_period[period_lookup_foi[t]] +
                                space)
         }
     }
@@ -568,7 +431,7 @@ assign("calc_infect_prob", calc_infect_prob, envir = .GlobalEnv)
 #                         f_period = f_period_foi,
 #                         m_period = m_period_foi,
 #                         nT_period_overall = nT_period_overall,
-#                         period_lookup_foi_study = period_lookup_foi_study[1:nT_period_overall],
+#                         period_lookup_foi = period_lookup_foi[1:nT_period_overall],
 #                         n_year = n_year,
 #                         n_sex = n_sex,
 #                         n_study_area = n_study_area, 
@@ -602,7 +465,7 @@ calc_infect_prob_hunt <- nimbleFunction(
                  f_period = double(1),
                  m_period = double(1),
                  nT_period_overall = double(0),
-                 period_lookup_foi_study = double(1),
+                 period_lookup_foi = double(1),
                  n_year = double(0),
                  n_sex = double(0),
                  n_study_area = double(0),
@@ -625,10 +488,10 @@ calc_infect_prob_hunt <- nimbleFunction(
             ### Female
             ### East
             gam[1, 1, i, t] <- exp(f_age[age_lookup_f[i]] +
-                               f_period[period_lookup_foi_study[t]])
+                               f_period[period_lookup_foi[t]])
             ### West
             gam[2, 1, i, t] <- exp(f_age[age_lookup_f[i]] +
-                               f_period[period_lookup_foi_study[t]] +
+                               f_period[period_lookup_foi[t]] +
                                space)
 
         }
@@ -636,10 +499,10 @@ calc_infect_prob_hunt <- nimbleFunction(
             ### Male
             ### East
             gam[1, 2, i, t] <- exp(m_age[age_lookup_m[i]] +
-                               m_period[period_lookup_foi_study[t]])
+                               m_period[period_lookup_foi[t]])
             ### West
             gam[2, 2, i, t] <- exp(m_age[age_lookup_m[i]] +
-                               m_period[period_lookup_foi_study[t]] +
+                               m_period[period_lookup_foi[t]] +
                                space)
         }
 
@@ -681,7 +544,7 @@ assign("calc_infect_prob_hunt", calc_infect_prob_hunt, envir = .GlobalEnv)
 #                         f_period = f_period_foi-1.5,
 #                         m_period = m_period_foi-1.5,
 #                         nT_period_overall = nT_period_overall,
-#                         period_lookup_foi_study = period_lookup_foi_study[1:nT_period_overall],
+#                         period_lookup_foi = period_lookup_foi[1:nT_period_overall],
 #                         n_year = n_year,
 #                         n_sex = n_sex,
 #                         n_study_area = n_study_area, 
@@ -823,43 +686,33 @@ set_period_effects_constant <- nimble::nimbleFunction(
     run = function(
         ### argument type declarations
         n_year_precollar = double(0),
-        n_year_precollar_ext = double(0),
-        n_year_prestudy_ext = double(0),
-        nT_period_precollar_ext = double(0),
         nT_period_precollar = double(0),
         nT_period_collar = double(0),
-        nT_period_overall_ext = double(0),
-        nT_period_prestudy_ext = double(0),
+        nT_period_overall = double(0),
         yr_start = double(1),
         yr_end = double(1),
         period_effect_surv = double(1),
         period_annual_survival = double(1)) {
 
-  period_effect_survival_temp <- nimNumeric(nT_period_overall_ext)
-  period_effect_survival <- nimNumeric(nT_period_overall_ext)
+  period_effect_survival <- nimNumeric(nT_period_overall)
 
-  for(i in 1:nT_period_prestudy_ext) {
-    period_effect_survival_temp[i] <- period_annual_survival[1]
+  for(i in 1:(n_year_precollar)) {
+    period_effect_survival[yr_start[i]:yr_end[i]] <- period_annual_survival[i]
   }
-
-  for(i in 1:(n_year_precollar + 1)) {
-    period_effect_survival_temp[(yr_start[i] + nT_period_prestudy_ext):(yr_end[i] + nT_period_prestudy_ext)] <- period_annual_survival[i]
-  }
-
   ### for the year of the study when switching from
   ### estimating period effects from collar data
   ### versus estimating from aah data
 
-  period_effect_survival_temp[
-          (yr_start[n_year_precollar] + nT_period_prestudy_ext):nT_period_precollar_ext] <-
-      period_annual_survival[n_year_precollar + 1]
+#   period_effect_survival[
+#           (yr_start[n_year_precollar]):nT_period_precollar] <-
+#       period_annual_survival[n_year_precollar + 1]
 
   ############################################################
   ## incorporating period effects from collar data
   ############################################################
 
-  period_effect_survival_temp[(nT_period_precollar_ext + 1):
-                               nT_period_overall_ext] <-
+  period_effect_survival[(nT_period_precollar + 1):
+                               nT_period_overall] <-
                                period_effect_surv[1:nT_period_collar]
 
   #making the period effects sum to zero using centering
@@ -869,7 +722,7 @@ set_period_effects_constant <- nimble::nimbleFunction(
 #       mu_period
 
   returnType(double(1))
-  return(period_effect_survival_temp[1:nT_period_overall_ext])
+  return(period_effect_survival[1:nT_period_overall])
 })
 
 Cset_period_effects_constant <- compileNimble(set_period_effects_constant)
@@ -877,20 +730,16 @@ Cset_period_effects_constant <- compileNimble(set_period_effects_constant)
 assign("set_period_effects_constant", set_period_effects_constant, envir = .GlobalEnv)
 
 
-#test <- set_period_effects_constant(
+# test <- set_period_effects_constant(
 #         n_year_precollar = n_year_precollar,
-#         n_year_precollar_ext = n_year_precollar_ext,
-#         n_year_prestudy_ext = n_year_prestudy_ext,
-#         nT_period_precollar_ext = nT_period_precollar_ext,
 #         nT_period_precollar = nT_period_precollar,
 #         nT_period_collar = nT_period_collar,
 #         nT_period_overall = nT_period_overall,
-#         nT_period_overall_ext = nT_period_overall_ext,
-#         nT_period_prestudy_ext = nT_period_prestudy_ext,
 #         yr_start = d_fit_season$yr_start,
 #         yr_end = d_fit_season$yr_end,
-#         period_effect_surv = period_effect_survival_test[(nT_period_precollar_ext + 1):nT_period_overall_ext],
+#         period_effect_surv = period_effect_surv[1:nT_period_collar],
 #         period_annual_survival = period_annual_survival)
+# which(test==0)
 
 
 
@@ -903,85 +752,85 @@ assign("set_period_effects_constant", set_period_effects_constant, envir = .Glob
 ###
 #######################################################################
 
-set_period_effects_ave <- nimble::nimbleFunction(
-    run = function(
-        ### argument type declarations
-        n_year_precollar = double(0),
-        nT_period_precollar = double(0),
-        nT_period_precollar_ext = double(0),
-        nT_period_collar = double(0),
-        nT_period_overall = double(0),
-        nT_period_overall_ext = double(0),
-        nT_period_prestudy_ext = double(0),
-        yr_start = double(1),
-        yr_end = double(1),
-        period_effect_surv = double(1),
-        period_annual_survival = double(1),
-        indx_mat_pe_surv = double(2),
-        intvl_step_yr = double(0)
-        ) {
+# set_period_effects_ave <- nimble::nimbleFunction(
+#     run = function(
+#         ### argument type declarations
+#         n_year_precollar = double(0),
+#         nT_period_precollar = double(0),
+#         nT_period_precollar_ext = double(0),
+#         nT_period_collar = double(0),
+#         nT_period_overall = double(0),
+#         nT_period_overall_ext = double(0),
+#         nT_period_prestudy_ext = double(0),
+#         yr_start = double(1),
+#         yr_end = double(1),
+#         period_effect_surv = double(1),
+#         period_annual_survival = double(1),
+#         indx_mat_pe_surv = double(2),
+#         intvl_step_yr = double(0)
+#         ) {
 
-    period_effect_survival_temp <- nimNumeric(nT_period_overall_ext)
-    period_effect_survival <- nimNumeric(nT_period_overall_ext)
-    period_effect_within_yr <- nimNumeric(intvl_step_yr)
+#     period_effect_survival_temp <- nimNumeric(nT_period_overall_ext)
+#     period_effect_survival <- nimNumeric(nT_period_overall_ext)
+#     period_effect_within_yr <- nimNumeric(intvl_step_yr)
 
 
-    ### Calculating the period effects by week, 
-    ### averaged across all years with collar data
+#     ### Calculating the period effects by week, 
+#     ### averaged across all years with collar data
 
-    for(i in 1:34){
-        period_effect_within_yr[i] <- mean(period_effect_surv[indx_mat_pe_surv[2:6,i]])
-    }
-    for(i in 35:intvl_step_yr){
-        period_effect_within_yr[i] <- mean(period_effect_surv[indx_mat_pe_surv[1:6,i]])
-    }
+#     for(i in 1:34){
+#         period_effect_within_yr[i] <- mean(period_effect_surv[indx_mat_pe_surv[2:6,i]])
+#     }
+#     for(i in 35:intvl_step_yr){
+#         period_effect_within_yr[i] <- mean(period_effect_surv[indx_mat_pe_surv[1:6,i]])
+#     }
 
-    for(i in 1:n_year_precollar) {
-        period_effect_survival_temp[(yr_start[i]+nT_period_prestudy_ext):
-                                (yr_end[i]+nT_period_prestudy_ext)] <- 
-            period_annual_survival[i] + period_effect_within_yr
-    }
+#     for(i in 1:n_year_precollar) {
+#         period_effect_survival_temp[(yr_start[i]+nT_period_prestudy_ext):
+#                                 (yr_end[i]+nT_period_prestudy_ext)] <- 
+#             period_annual_survival[i] + period_effect_within_yr
+#     }
 
-    ### for the year of the study when switching from
-    ### estimating period effects from collar data
-    ### versus estimating from aah data
+#     ### for the year of the study when switching from
+#     ### estimating period effects from collar data
+#     ### versus estimating from aah data
 
-    period_effect_survival_temp[
-            (yr_start[n_year_precollar] + nT_period_prestudy_ext):
-            (nT_period_precollar + nT_period_prestudy_ext)] <-
-                period_annual_survival[n_year_precollar + 1] +
-                period_effect_within_yr[1:length((yr_start[n_year_precollar]:nT_period_precollar))]
+#     period_effect_survival_temp[
+#             (yr_start[n_year_precollar] + nT_period_prestudy_ext):
+#             (nT_period_precollar + nT_period_prestudy_ext)] <-
+#                 period_annual_survival[n_year_precollar + 1] +
+#                 period_effect_within_yr[1:length((yr_start[n_year_precollar]:nT_period_precollar))]
 
-    ############################################################
-    ## incorporating period effects from collar data
-    ############################################################
-    period_effect_survival_temp[(nT_period_precollar_ext+1): nT_period_overall_ext] <- period_effect_surv[1:nT_period_collar]
+#     ############################################################
+#     ## incorporating period effects from collar data
+#     ############################################################
+#     period_effect_survival_temp[(nT_period_precollar_ext+1): nT_period_overall_ext] <- period_effect_surv[1:nT_period_collar]
 
-    #making the period effects sum to zero using centering
-    ### only during the study though.... ignoring centering outside the study?
-    # mu_period <- mean(period_effect_survival_temp[(1 + nT_period_prestudy_ext):
-    #                                                (nT_period_overall + nT_period_prestudy_ext)])
+#     #making the period effects sum to zero using centering
+#     ### only during the study though.... ignoring centering outside the study?
+#     # mu_period <- mean(period_effect_survival_temp[(1 + nT_period_prestudy_ext):
+#     #                                                (nT_period_overall + nT_period_prestudy_ext)])
     
-    # period_effect_survival[1:nT_period_prestudy_ext] <-
-    #     period_effect_survival_temp[1:nT_period_prestudy_ext] 
+#     # period_effect_survival[1:nT_period_prestudy_ext] <-
+#     #     period_effect_survival_temp[1:nT_period_prestudy_ext] 
 
-    # period_effect_survival[(1+nT_period_prestudy_ext):(nT_period_overall+nT_period_prestudy_ext)] <-
-    #     period_effect_survival_temp - mu_period
+#     # period_effect_survival[(1+nT_period_prestudy_ext):(nT_period_overall+nT_period_prestudy_ext)] <-
+#     #     period_effect_survival_temp - mu_period
 
-    #### centering across all period effects, including years prior to study
-    # mu_period <- mean(period_effect_survival_temp[1:nT_period_overall_ext])
+#     #### centering across all period effects, including years prior to study
+#     # mu_period <- mean(period_effect_survival_temp[1:nT_period_overall_ext])
     
-    # period_effect_survival[1:nT_period_overall_ext] <- 
-    #             period_effect_survival_temp[1:nT_period_overall_ext] - 
-    #             mu_period
+#     # period_effect_survival[1:nT_period_overall_ext] <- 
+#     #             period_effect_survival_temp[1:nT_period_overall_ext] - 
+#     #             mu_period
 
-    returnType(double(1))
-    return(period_effect_survival_temp[1:(nT_period_overall_ext)])
-})
+#     returnType(double(1))
+#     return(period_effect_survival_temp[1:(nT_period_overall_ext)])
+# })
 
-Cset_period_effects_ave <- compileNimble(set_period_effects_ave)
+# Cset_period_effects_ave <- compileNimble(set_period_effects_ave)
 
-assign("set_period_effects_ave", set_period_effects_ave, envir = .GlobalEnv)
+# assign("set_period_effects_ave", set_period_effects_ave, envir = .GlobalEnv)
 
 
 # set_period_effects_ave(

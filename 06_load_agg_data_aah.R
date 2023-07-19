@@ -7,8 +7,8 @@
 
 ### Number of age classes and sex classes
 n_study_area <- 2
-n_year_ext <- 2022 - 1885
-n_year <- 2022 - 1994
+# n_year_ext <- 2022 - 1985
+n_year <- 2022 - 2002
 n_ageclass <- 7
 n_ageclassm <- 6
 n_ageclassf <- 7
@@ -19,16 +19,16 @@ n_sex <- 2
 #structuring classification data to fit into the model
 Cage_sus <- array(NA, c(n_study_area, n_sex, n_ageclassf, n_year))
 for(j in 1:(n_year)) {
-    Cage_sus[1,1,,j] <- df_age_sus$n[df_age_sus$year == (1993 + j) &
+    Cage_sus[1,1,,j] <- df_age_sus$n[df_age_sus$year == (2001 + j) &
                                     df_age_sus$sex == "Female" &
                                     df_age_sus$study_area == "east"]
-    Cage_sus[2,1,,j] <- df_age_sus$n[df_age_sus$year == (1993 + j) &
+    Cage_sus[2,1,,j] <- df_age_sus$n[df_age_sus$year == (2001 + j) &
                                     df_age_sus$sex == "Female" &
                                     df_age_sus$study_area == "west"]
-    Cage_sus[1,2,,j] <- df_age_sus$n[df_age_sus$year == (1993 + j) &
+    Cage_sus[1,2,,j] <- df_age_sus$n[df_age_sus$year == (2001 + j) &
                                     df_age_sus$sex == "Male" &
                                     df_age_sus$study_area == "east"]
-    Cage_sus[2,2,,j] <- df_age_sus$n[df_age_sus$year == (1993 + j) &
+    Cage_sus[2,2,,j] <- df_age_sus$n[df_age_sus$year == (2001 + j) &
                                     df_age_sus$sex == "Male" &
                                     df_age_sus$study_area == "west"]
 }
@@ -51,8 +51,7 @@ for(j in 1:n_yr_surveillance){
                                     df_age_inf$sex == "Male" &
                                     df_age_inf$study_area == "west"]
 }
-Cage <- Cage_sus
-Cage[, , , 9:28] <- Cage[, , , 9:28] + Cage_inf
+Cage <- Cage_sus + Cage_inf
 
 #Aggregating the oldest age class for males into the next oldest age
 Cage[, 2, 6, ] <- Cage[, 2, 6, ] + Cage[, 2, 7,]
@@ -67,10 +66,10 @@ Cage[, 2, 7, ] <- 0
 ### if not using data by gun/bow types:
 names(df_harv_overall_total)[1] <- "year"
 
-Ototal_east <- df_harv_overall_total[df_harv_overall_total$year > 1993 &
+Ototal_east <- df_harv_overall_total[df_harv_overall_total$year > 2001 &
                                      df_harv_overall_total$study_area == "east",]
 
-Ototal_west <-  df_harv_overall_total[df_harv_overall_total$year > 1993 &
+Ototal_west <-  df_harv_overall_total[df_harv_overall_total$year > 2001 &
                                      df_harv_overall_total$study_area == "west",]
 
 Ototal <- array(NA,c(n_study_area,n_sex,nrow(Ototal_east)))
@@ -92,6 +91,7 @@ for(i in 1:nrow(report_df)){
 }
 report_hyp_y <- data.frame(report_hyp_y)
 names(report_hyp_y) <- c("alpha", "beta")
+
 
 ####################################################################################
 ###
@@ -130,7 +130,7 @@ fawndoe_df$overall_doe[indx_add] <- fd_older_df$overall_doe
 fawndoe_df$overall_fawn[indx_add] <- fd_older_df$overall_fawn
 fawndoe_df$overall_fd[indx_add] <- fd_older_df$overall_fd
 fawndoe_df <- fawndoe_df[order(fawndoe_df$year), ]
-fawndoe_df <- fawndoe_df[fawndoe_df$year > 1993, ]
+fawndoe_df <- fawndoe_df[fawndoe_df$year > 2001, ]
 
 ####################################################################################
 ###
@@ -146,8 +146,25 @@ df_eab <- read.csv(paste0(filepath,"eab_present.csv"))
 ###
 #####################################################################################
 
-df_pop_estimate <-  read.csv(paste0(filepath, "Total_pop_size_UNIT.csv"))
-names(df_pop_estimate) <- c("year","east","west","total")
-pop_estimate_east <- df_pop_estimate$east[3]
-pop_estimate_west <- df_pop_estimate$west[3]
+# df_pop_estimate <-  read.csv(paste0(filepath, "Total_pop_size_UNIT.csv"))
+# names(df_pop_estimate) <- c("year","east","west","total")
+# pop_estimate_east <- df_pop_estimate$east[3]
+# pop_estimate_west <- df_pop_estimate$west[3]
 
+
+# sum(data.frame(df_harv_overall_total %>% filter(year == 2001 & study_area == "east"))[,3:4])
+
+# df_pop_estimate <- data.frame(year = 2002, 
+#     east = sum(data.frame(df_harv_overall_total %>% filter(year == 2001 & study_area == "east"))[,3:4]),
+#     west = sum(data.frame(df_harv_overall_total %>% filter(year == 2001 & study_area == "west"))[,3:4])
+# )
+
+
+df_pop <- read_xls("datafiles/UnitDeerPopulationEstimates1981_2011.xls")
+names(df_pop)
+
+df_pop_estimate <- data.frame( year = 2002,
+    east = data.frame(df_pop %>% filter(Unit %in% c('70ACWD')))$X2002,
+    west = data.frame(df_pop %>% filter(Unit %in% c('73ECWD')))$X2002)
+pop_estimate_east <- df_pop_estimate$east
+pop_estimate_west <- df_pop_estimate$west
