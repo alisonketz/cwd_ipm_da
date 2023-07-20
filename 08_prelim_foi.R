@@ -37,22 +37,38 @@ age_lookup_m <- c(age_lookup_m,
 ### age to date conversion for FOI age/period effects
 ######################################################
 death_end <- "2022-05-14"
-
-cwd_df$birthweek <- floor(interval(study_origin,
-                            cwd_df$birth_date) / weeks(1))
+first_birth <- "1992-05-15"
+cwd_df$birthweek <- floor(interval(first_birth,
+                            cwd_df$birth_date) / weeks(1)) + 1
 
 cwd_df$weekkill <- floor(interval(study_origin,
                             cwd_df$kill_date) / weeks(1))
 cwd_df$yearkill <- cwd_df$kill_year - year(study_origin) + 1
 
 # interval("1994-05-15","1995-01-01") %/% weeks(1)
+######################################################################
 
-period_lookup_foi <- c(rep(1, interval("1992-05-15","2002-05-15") %/% weeks(1)),
-                       rep(2:n_year, each = intvl_step_yr_weekly))
+end_dates <- paste(2002:2022,"05","14",sep="-")
+interval_cuts <- floor(interval(study_origin,end_dates)/weeks(1))
+(intvl_step_yearly <- c(diff(interval_cuts),52))
 
+period_lookup_foi <- rep(1, ceiling(interval("1992-05-15","2002-05-15") / weeks(1)))
+for(t in 2:n_year){
+  period_lookup_foi <- c(period_lookup_foi,
+                         rep(t,intvl_step_yearly[t]))
+}
+#making sure the period effect lookup vector is sufficiently long
+period_lookup_foi <- c(period_lookup_foi,rep(n_year,max(cwd_df$birthweek+cwd_df$ageweeks) - length(period_lookup_foi)))
 (n_period_lookup <- length(period_lookup_foi))
 
-# period_lookup_foi_study <- period_lookup_foi[(nT_period_prestudy+1):nT_period_overall]
+nT_period_prestudy <- floor(interval("1992-05-15","2001-05-15") / weeks(1))
+period_lookup_foi_hunt <- period_lookup_foi
+period_lookup_foi <- period_lookup_foi[-(1:nT_period_prestudy)]
+period_lookup_foi <- period_lookup_foi[1:nT_period_overall]
+# max(d_surv$left_period_e+(d_surv$right_age_s - d_surv$left_age_e),na.rm=TRUE)
+nT_period_overall_hunt <- length(period_lookup_foi_hunt)
+
+
 # num_foi_cal <- table(period_lookup_foi_study)
 
 #############################################################################################

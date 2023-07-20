@@ -80,7 +80,6 @@ source("07_format_data_survival.R")
 
 source("08_prelim_foi.R")
 
-
 ##########################################################
 ### Setup collar data for FOI + Survival
 ##########################################################

@@ -369,12 +369,11 @@ d_fit_rec_neg_cens_postno$right <- d_fit_rec_neg_cens_postno$right_age_r
 d_fit_rec_neg_cens_postno$surv_censor <- 1
 
 ################################################################
-###
 ### Arranging data for FOI
-###
 ################################################################
 
-d_fit_hunt <- rbind(d_fit_hunt_neg,d_fit_hunt_pos)
+d_fit_hunt <- rbind(d_fit_hunt_neg,
+                    d_fit_hunt_pos)
 n_fit_hunt <- nrow(d_fit_hunt)
 
 d_fit_sus_foi <- d_fit_sus[d_fit_sus$surv_censor == 1,]
@@ -450,4 +449,27 @@ n_fit_rec_neg_cens_postno <- nrow(d_fit_rec_neg_cens_postno)
 # #fudging fix periodweek recap is 1 week off for this individual
 # d_fit_rec_pos_cens$periodweek_recap <- d_fit_rec_pos_cens$periodweek_recap -1
 
+### the distance between period week and recap period week is different than the distance (in intervals) of ageweek recap to age at entry
+d_fit_rec_neg_cens_postno$periodweek_recap[which(d_fit_rec_neg_cens_postno$ageweek_recap - 
+        d_fit_rec_neg_cens_postno$left_age_e !=
+      d_fit_rec_neg_cens_postno$periodweek_recap - 
+      d_fit_rec_neg_cens_postno$left_period_e)] <- d_fit_rec_neg_cens_postno$periodweek_recap[which(d_fit_rec_neg_cens_postno$ageweek_recap - 
+        d_fit_rec_neg_cens_postno$left_age_e !=
+      d_fit_rec_neg_cens_postno$periodweek_recap - 
+      d_fit_rec_neg_cens_postno$left_period_e)] + 1
 
+# d_fit_rec_neg_cens_postno$ageweek_recap - d_fit_rec_neg_cens_postno$left_age_e 
+# d_fit_rec_neg_cens_postno$periodweek_recap - d_fit_rec_neg_cens_postno$left_period_e
+
+
+### the distance between period week and recap period week is different than the distance (in intervals) of ageweek recap to age at entry
+d_fit_rec_pos_mort$periodweek_recap[which(d_fit_rec_pos_mort$ageweek_recap - 
+        d_fit_rec_pos_mort$left_age_e !=
+      d_fit_rec_pos_mort$periodweek_recap - 
+      d_fit_rec_pos_mort$left_period_e)] <- d_fit_rec_pos_mort$periodweek_recap[which(d_fit_rec_pos_mort$ageweek_recap - 
+        d_fit_rec_pos_mort$left_age_e !=
+      d_fit_rec_pos_mort$periodweek_recap - 
+      d_fit_rec_pos_mort$left_period_e)] + 1
+
+d_fit_rec_pos_mort$ageweek_recap - d_fit_rec_pos_mort$left_age_e 
+d_fit_rec_pos_mort$periodweek_recap - d_fit_rec_pos_mort$left_period_e

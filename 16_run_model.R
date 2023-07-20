@@ -144,6 +144,7 @@ nimConsts <- list(n_year = n_year,
     nT_period_overall = nT_period_overall,
     nT_period_precollar = nT_period_precollar,
     nT_period_collar = nT_period_collar,
+    nT_period_overall_hunt = nT_period_overall_hunt,
     nT_age_surv = nT_age_surv,
     nT_age_surv_aah_f = nT_age_surv_aah_f,
     nT_age_surv_aah_m = nT_age_surv_aah_m,
@@ -154,6 +155,7 @@ nimConsts <- list(n_year = n_year,
     nknots_period = nknots_period,
     n_adj_period = n_adj_period,
     period_lookup_foi = period_lookup_foi,
+    period_lookup_foi_hunt = period_lookup_foi_hunt,
     ng_start = d_fit_season$ng_start,
     gun_start = d_fit_season$gun_start,
     gun_end = d_fit_season$gun_end,
@@ -260,9 +262,7 @@ Rmodel <- nimbleModel(code = modelcode,
                       )
 # end_Rmodel <- Sys.time() - start_Rmodel
 Rmodel$initializeInfo()
-
 Cnim <- compileNimble(Rmodel)
-
 for(i in 1:10){beepr::beep(1)}
 
 #######################################
@@ -334,7 +334,7 @@ for(i in 1:10){beepr::beep(1)}
 set.seed(1001)
 starttime <- Sys.time()
 mcmcout <- runMCMC(CnimMCMC,
-                  niter = 5,
+                  niter = 500,
                   nburnin = 0,
                   nchains = 1,
                   inits = initsFun,
@@ -347,11 +347,11 @@ runtime <- difftime(Sys.time(),
 runtime
 for (i in 1:10) {beepr::beep(1)}
 
-mcmcout$summary
+# mcmcout$summary
 # end_Rmodel
 # endtime_rmodel_compile
 # endtime_mcmc
-runtime
+# runtime
 
 # sink("runtime_allsteps.txt")
 # cat("Rmodel:\n")
