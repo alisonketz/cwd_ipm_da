@@ -298,27 +298,27 @@ parameters <- c(
               "period_effect_survival",
             #   "beta0_inf_temp",
             #   "inf_mix",
-              "beta0_survival_inf"#,
-              # "beta0_cause",
-              # "beta_cause_gun",
-              # "beta_cause_ng",
-              # "beta_cause_male",
-              # "p_nogun_f",
-              # "p_gun_f",
-              # "p_nogun_m",
-              # "p_gun_m"#,
-            #   "report",
-            #   "fec",
-            #   "mu_fec",
-            #   "fec_prec_eps",
-            #   "fec_epsilon",
-              # "sn_inf",
-              # "sn_sus",
-              # "sh_inf",
-              # "sh_sus"#,
-            #   "mu_obs",
-            #   "tau_obs",
-            #   "tau_pop"
+              "beta0_survival_inf",
+              "beta0_cause",
+              "beta_cause_gun",
+              "beta_cause_ng",
+              "beta_cause_male",
+              "p_nogun_f",
+              "p_gun_f",
+              "p_nogun_m",
+              "p_gun_m",
+              "report",
+              "fec",
+              "mu_fec",
+              "fec_prec_eps",
+              "fec_epsilon",
+              "sn_inf",
+              "sn_sus",
+              "sh_inf",
+              "sh_sus",
+              "mu_obs",
+              "tau_obs",
+              "tau_pop"
                )
 
 confMCMC <- configureMCMC(Rmodel,
@@ -331,12 +331,16 @@ CnimMCMC <- compileNimble(nimMCMC,
                          project = Rmodel)
 for(i in 1:10){beepr::beep(1)}
 
+reps <- 1000
+nbin <- 0
+n_chains <- 1
+
 set.seed(1001)
 starttime <- Sys.time()
 mcmcout <- runMCMC(CnimMCMC,
-                  niter = 500,
-                  nburnin = 0,
-                  nchains = 1,
+                  niter = reps,
+                  nburnin = nbin,
+                  nchains = n_chains,
                   inits = initsFun,
                   samplesAsCodaMCMC = TRUE,
                   summary = TRUE
