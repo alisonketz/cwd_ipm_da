@@ -60,6 +60,7 @@ dFOIhunt <- nimble::nimbleFunction( # nolint
 
             if (sex[i] == 0) { # age loops for females
                 lik_foi <- 0
+                lam_foij <- 0
                 for (j in 1:(a[i] - 1)) {
                     # sum up foi hazard from 1  to j
                     lam_foij <- exp(space[sect[i]] +
@@ -72,6 +73,7 @@ dFOIhunt <- nimble::nimbleFunction( # nolint
                 lik_temp <- dbinom(x,1,p,log=TRUE)
             } else { # age loops for males
                 lik_foi <- 0
+                lam_foij <- 0
                 for (j in 1:(a[i] - 1)) {
                     # sum up foi hazard from 1  to j
                     lam_foij <- exp(space[sect[i]] +
@@ -125,11 +127,11 @@ nimble::registerDistributions(list(
     )
 ))
 
-# for a user-defined distribution
-# assign("dFOIhunt",
-#     dFOIhunt,
-#     envir = .GlobalEnv
-# )
+### for a user-defined distribution
+assign("dFOIhunt",
+    dFOIhunt,
+    envir = .GlobalEnv
+)
 
 # starttime <- Sys.time()
 # test <- dFOIhunt(
