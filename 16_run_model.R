@@ -262,6 +262,7 @@ Rmodel <- nimbleModel(code = modelcode,
                       )
 # end_Rmodel <- Sys.time() - start_Rmodel
 Rmodel$initializeInfo()
+
 Cnim <- compileNimble(Rmodel)
 for(i in 1:10){beepr::beep(1)}
 
