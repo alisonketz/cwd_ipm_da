@@ -153,8 +153,20 @@ n_fit_rec_neg_cens_postno <- nrow(d_fit_rec_neg_cens_postno)
 ###
 ##############################################################
 
+# cwd_df_agg <- cwd_df %>% 
+#               group_by(teststatus, ageweeks, birthweek, sex, ew) %>%
+#               summarise(n_cases = n(), .groups = 'drop')
+# d_fit_hunt_neg <- cwd_df_agg[cwd_df_agg$teststatus == 0, ]
+# d_fit_hunt_pos <- cwd_df_agg[cwd_df_agg$teststatus == 1, ]
+
+# n_fit_hunt_pos <- nrow(d_fit_hunt_pos)
+# n_fit_hunt_neg <- nrow(d_fit_hunt_neg)
+
+# d_fit_hunt <- rbind(d_fit_hunt_neg,d_fit_hunt_pos)
+# n_fit_hunt <- nrow(d_fit_hunt)
+
 cwd_df_agg <- cwd_df %>% 
-              group_by(teststatus, ageweeks, birthweek, sex, ew) %>%
+              group_by(teststatus, agemonths, birthmonth, sex, ew) %>%
               summarise(n_cases = n(), .groups = 'drop')
 d_fit_hunt_neg <- cwd_df_agg[cwd_df_agg$teststatus == 0, ]
 d_fit_hunt_pos <- cwd_df_agg[cwd_df_agg$teststatus == 1, ]
@@ -164,6 +176,8 @@ n_fit_hunt_neg <- nrow(d_fit_hunt_neg)
 
 d_fit_hunt <- rbind(d_fit_hunt_neg,d_fit_hunt_pos)
 n_fit_hunt <- nrow(d_fit_hunt)
+
+
 
 ####################################################
 ### For the deer that are fast mortalities, 
@@ -379,50 +393,79 @@ n_fit_hunt <- nrow(d_fit_hunt)
 d_fit_sus_foi <- d_fit_sus[d_fit_sus$surv_censor == 1,]
 for(i in 1:nrow(d_fit_sus_foi)) {
     if(!is.na(d_fit_sus_foi$right_age_s[i])){
-        d_fit_sus_foi$right[i] <- d_fit_sus_foi$right_age_s[i]
+        d_fit_sus_foi$right[i] <- d_fit_sus_foi$right_age_smonth[i]
     }
 }
 
+# d_fit_sus_foi$left[d_fit_sus_foi$lowtag %in% 
+#                     c(d_fit_rec_neg_mort$lowtag,
+#                     d_fit_rec_neg_cens_posttest$lowtag)]  <- 
+#         d_fit_sus_foi$ageweek_recap[d_fit_sus_foi$lowtag %in% 
+#                     c(d_fit_rec_neg_mort$lowtag,
+#                     d_fit_rec_neg_cens_posttest$lowtag)]
+
+d_fit_sus_foi$left <- d_fit_sus_foi$left_age_month
 d_fit_sus_foi$left[d_fit_sus_foi$lowtag %in% 
                     c(d_fit_rec_neg_mort$lowtag,
                     d_fit_rec_neg_cens_posttest$lowtag)]  <- 
-        d_fit_sus_foi$ageweek_recap[d_fit_sus_foi$lowtag %in% 
+        d_fit_sus_foi$agemonth_recap[d_fit_sus_foi$lowtag %in% 
                     c(d_fit_rec_neg_mort$lowtag,
                     d_fit_rec_neg_cens_posttest$lowtag)]
 
-d_fit_sus_foi$age2date <- d_fit_sus_foi$left_period_e - d_fit_sus_foi$left_age_e
+# d_fit_sus_foi$age2date <- d_fit_sus_foi$left_period_e - d_fit_sus_foi$left_age_e
+# n_fit_sus_foi <- nrow(d_fit_sus_foi)
+
+d_fit_sus_foi$age2date <- d_fit_sus_foi$emonth - d_fit_sus_foi$left_age_month
 n_fit_sus_foi <- nrow(d_fit_sus_foi)
 
 d_fit_icap_foi <- d_fit_icap[d_fit_icap$surv_censor == 1,]
-d_fit_icap_foi$age2date <- d_fit_icap_foi$left_period_e - d_fit_icap_foi$left_age_e
+d_fit_icap_foi$left <- d_fit_icap_foi$left_age_month
+d_fit_icap_foi$right <- d_fit_icap_foi$right_age_rmonth
+# d_fit_icap_foi$age2date <- d_fit_icap_foi$left_period_e - d_fit_icap_foi$left_age_e
+d_fit_icap_foi$age2date <- d_fit_icap_foi$emonth - d_fit_icap_foi$left_age_month
 n_fit_icap_foi <- nrow(d_fit_icap_foi)
 d_fit_icap_foi$teststatus
 
 d_fit_rec_neg_cens_postno_foi <- d_fit_rec_neg_cens_postno
 d_fit_rec_neg_cens_postno_foi$teststatus <- 0
-d_fit_rec_neg_cens_postno_foi$right <- d_fit_rec_neg_cens_postno_foi$ageweek_recap
-d_fit_rec_neg_cens_postno_foi$age2date <- d_fit_rec_neg_cens_postno_foi$left_period_e -
-                                          d_fit_rec_neg_cens_postno_foi$left_age_e
+# d_fit_rec_neg_cens_postno_foi$right <- d_fit_rec_neg_cens_postno_foi$ageweek_recap
+d_fit_rec_neg_cens_postno_foi$right <- d_fit_rec_neg_cens_postno_foi$agemonth_recap
 
+# d_fit_rec_neg_cens_postno_foi$age2date <- d_fit_rec_neg_cens_postno_foi$left_period_e -
+#                                           d_fit_rec_neg_cens_postno_foi$left_age_e
+d_fit_rec_neg_cens_postno_foi$age2date <- d_fit_rec_neg_cens_postno_foi$emonth -
+                                          d_fit_rec_neg_cens_postno_foi$left_age_month
 n_fit_rec_neg_cens_postno_foi <- nrow(d_fit_rec_neg_cens_postno_foi)
 
 d_fit_recap_foi <- d_fit_recap[d_fit_recap$surv_censor == 1,]
 d_fit_recap_foi$teststatus <- 1
-d_fit_recap_foi$right <- d_fit_recap_foi$ageweek_recap
-d_fit_recap_foi$age2date <- d_fit_recap_foi$left_period_e - d_fit_recap_foi$left_age_e
+d_fit_recap_foi$right <- d_fit_recap_foi$agemonth_recap
+# d_fit_recap_foi$right <- d_fit_recap_foi$ageweek_recap
+
+d_fit_recap_foi$age2date <- d_fit_recap_foi$emonth - d_fit_recap_foi$left_age_month
+# d_fit_recap_foi$age2date <- d_fit_recap_foi$left_period_e - d_fit_recap_foi$left_age_e
+
 n_fit_recap_foi <- nrow(d_fit_recap_foi)
 
 d_fit_idead_foi <- d_fit_idead[d_fit_idead$surv_censor == 1,]
 d_fit_idead_foi$teststatus <- 1
-d_fit_idead_foi$right <- d_fit_idead_foi$right_age_s
-d_fit_idead_foi$age2date <- d_fit_idead_foi$left_period_e - d_fit_idead_foi$left_age_e
+# d_fit_idead_foi$right <- d_fit_idead_foi$right_age_s
+d_fit_idead_foi$left <- d_fit_idead_foi$left_age_month
+d_fit_idead_foi$right <- d_fit_idead_foi$right_age_smonth
+# d_fit_idead_foi$age2date <- d_fit_idead_foi$left_period_e - d_fit_idead_foi$left_age_e
+d_fit_idead_foi$age2date <- d_fit_idead_foi$emonth - d_fit_idead_foi$left_age_month
+
 n_fit_idead_foi <- nrow(d_fit_idead_foi)
 
+#############################################
+#############################################
 #############################################
 ###
 ###  Parameters for fitting survival models
 ###
-##############################################
+#############################################
+#############################################
+#############################################
 
 d_fit_idead <- d_fit_idead[d_fit_idead$surv_censor == 0,]
 d_fit_idead$age2date <- d_fit_idead$left_period_e - d_fit_idead$left_age_e

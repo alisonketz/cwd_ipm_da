@@ -14,6 +14,13 @@ nT_age_short_m <- intvl_step_yr_weekly * (n_agem - 1) + 1
 ### to the 9 or 7 years or older actually live more than
 ### 52 weeks in a year, due to leap years and timing of weeks beginning into end
 
+nT_age_foi <- max(d_surv$right_age_smonth, na.rm = TRUE) - 1
+nT_age_surv_aah_f_foi <- intvl_step_yr_monthly * n_agef + 2
+nT_age_short_f_foi <- intvl_step_yr_monthly * (n_agef - 1) + 2
+nT_age_surv_aah_m_foi <- intvl_step_yr_monthly * n_agem + 1 
+nT_age_short_m_foi <- intvl_step_yr_monthly * (n_agem - 1) + 1
+
+
 ####################################################################################
 ###
 ### calculating age_lookup for AAH population model, 
@@ -21,17 +28,30 @@ nT_age_short_m <- intvl_step_yr_weekly * (n_agem - 1) + 1
 ###
 ####################################################################################
 
-age_lookup_f <- c(rep(1:4, each = intvl_step_yr_weekly),
-                       rep(5, 2 * intvl_step_yr_weekly),
-                       rep(6, 3 * intvl_step_yr_weekly))
-age_lookup_f <- c(age_lookup_f,
-                  rep(7, nT_age_surv - length(age_lookup_f)))
+# age_lookup_f <- c(rep(1:4, each = intvl_step_yr_weekly),
+#                        rep(5, 2 * intvl_step_yr_weekly),
+#                        rep(6, 3 * intvl_step_yr_weekly))
+# age_lookup_f <- c(age_lookup_f,
+#                   rep(7, nT_age_surv - length(age_lookup_f)))
 
-age_lookup_m <- c(rep(1:4, each = intvl_step_yr_weekly),
-                       rep(5, 2 * intvl_step_yr_weekly),
-                       rep(6, 3 * intvl_step_yr_weekly))
+# age_lookup_m <- c(rep(1:4, each = intvl_step_yr_weekly),
+#                        rep(5, 2 * intvl_step_yr_weekly),
+#                        rep(6, 3 * intvl_step_yr_weekly))
+# age_lookup_m <- c(age_lookup_m,
+#                   rep(6, nT_age_surv - length(age_lookup_m)))
+
+age_lookup_f <- c(rep(1:4, each = intvl_step_yr_monthly),
+                       rep(5, 2 * intvl_step_yr_monthly),
+                       rep(6, 3 * intvl_step_yr_monthly))
+age_lookup_f <- c(age_lookup_f,
+                  rep(7, nT_age_foi - length(intvl_step_yr_monthly)))
+
+age_lookup_m <- c(rep(1:4, each = intvl_step_yr_monthly),
+                       rep(5, 2 * intvl_step_yr_monthly),
+                       rep(6, 3 * intvl_step_yr_monthly))
 age_lookup_m <- c(age_lookup_m,
-                  rep(6, nT_age_surv - length(age_lookup_m)))
+                  rep(6, nT_age_foi - length(age_lookup_m)))
+
 
 ######################################################
 ### age to date conversion for FOI age/period effects
@@ -40,7 +60,8 @@ death_end <- "2022-05-14"
 first_birth <- "1992-05-15"
 cwd_df$birthweek <- floor(interval(first_birth,
                             cwd_df$birth_date) / weeks(1)) + 1
-
+cwd_df$birthmonth <- floor(interval(first_birth,
+                            cwd_df$birth_date) / months(1)) + 1
 cwd_df$weekkill <- floor(interval(study_origin,
                             cwd_df$kill_date) / weeks(1))
 cwd_df$yearkill <- cwd_df$kill_year - year(study_origin) + 1
