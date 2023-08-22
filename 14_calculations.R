@@ -73,30 +73,30 @@ calc_surv_aah <- nimble::nimbleFunction(
     ############################################
     # calculate survival from cummulative haz
     ############################################
-    # for (t in 1:n_year) {
-    #     for (a in 1:n_agef) {
-    #         s_aah[1, a, t] <- exp(-sum(diag(UCH[1,
-    #                            yr_start[a]:(yr_start[a] + 52),
-    #                            yr_start[t]:(yr_start[t] + 52)])))
-    #     }
-    #     for(a in 1:n_agem) {
-    #         s_aah[2, a, t] <- exp(-sum(diag(UCH[2,
-    #                            yr_start[a]:(yr_start[a] + 52),
-    #                            yr_start[t]:(yr_start[t] + 52)])))
-    #     }
-    # }
     for (t in 1:n_year) {
         for (a in 1:n_agef) {
             s_aah[1, a, t] <- exp(-sum(diag(UCH[1,
-                               yr_start[a]:(yr_start[a] + length(yr_start[t]:yr_end[t]) - 1),
-                               yr_start[t]:yr_end[t]])))
+                               yr_start[a]:(yr_start[a] + 52),
+                               yr_start[t]:(yr_start[t] + 52)])))
         }
         for(a in 1:n_agem) {
             s_aah[2, a, t] <- exp(-sum(diag(UCH[2,
-                               yr_start[a]:(yr_start[a] + length(yr_start[t]:yr_end[t]) - 1),
-                               yr_start[t]:(yr_end[t])])))
+                               yr_start[a]:(yr_start[a] + 52),
+                               yr_start[t]:(yr_start[t] + 52)])))
         }
     }
+    # for (t in 1:n_year) {
+    #     for (a in 1:n_agef) {
+    #         s_aah[1, a, t] <- exp(-sum(diag(UCH[1,
+    #                            yr_start[a]:(yr_start[a] + length(yr_start[t]:yr_end[t]) - 1),
+    #                            yr_start[t]:yr_end[t]])))
+    #     }
+    #     for(a in 1:n_agem) {
+    #         s_aah[2, a, t] <- exp(-sum(diag(UCH[2,
+    #                            yr_start[a]:(yr_start[a] + length(yr_start[t]:yr_end[t]) - 1),
+    #                            yr_start[t]:(yr_end[t])])))
+    #     }
+    # }
 
   returnType(double(3))
   return(s_aah[1:2, 1:n_agef, 1:n_year])
@@ -423,11 +423,17 @@ calc_infect_prob <- nimbleFunction(
         for (t in 1:n_year) {
             for (a in 1:n_agef) {
                 p_inf[k, 1, a, t] <- 
-                    1 - exp(-sum(diag(gam[k, 1, yr_start[a]:yr_end[a], yr_start[t]:yr_end[t]])))
+                    1 - exp(-sum(diag(gam[k,
+                                          1,
+                                          yr_start[a]:(yr_start[a] + 52),
+                                          yr_start[t]:(yr_start[t] + 52)])))
             }
             for (a in 1:n_agem) {
                 p_inf[k, 2, a, t] <- 
-                    1 - exp(-sum(diag(gam[k, 2, yr_start[a]:yr_end[a], yr_start[t]:yr_end[t]])))
+                    1 - exp(-sum(diag(gam[k,
+                                          2,
+                                          yr_start[a]:(yr_start[a] + 52),
+                                          yr_start[t]:(yr_start[t] + 52)])))
             }
         }
     }
@@ -543,11 +549,17 @@ calc_infect_prob_hunt <- nimbleFunction(
         for (t in 1:n_year) {
             for (a in 1:n_agef) {
                 p_inf[k, 1, a, t] <- 
-                    (1 - exp(-sum(diag(gam[k, 1, yr_start[a]:ng_end[a], yr_start[t]:ng_end[t]])))) * fudge_factor
+                    (1 - exp(-sum(diag(gam[k,
+                                           1,
+                                           yr_start[a]:(yr_start[a] + length(yr_start[t]:ng_end[t]) - 1),
+                                           yr_start[t]:ng_end[t]])))) * fudge_factor
             }
             for (a in 1:n_agem) {
                 p_inf[k, 2, a, t] <- 
-                    (1 - exp(-sum(diag(gam[k, 2, yr_start[a]:ng_end[a], yr_start[t]:ng_end[t]])))) * fudge_factor
+                    (1 - exp(-sum(diag(gam[k,
+                                           2,
+                                           yr_start[a]:(yr_start[a] + length(yr_start[t]:ng_end[t]) - 1),
+                                           yr_start[t]:ng_end[t]])))) * fudge_factor
             }
         }
     }
@@ -715,43 +727,26 @@ set_period_effects_constant <- nimble::nimbleFunction(
     run = function(
         ### argument type declarations
         n_year_precollar = double(0),
-        n_year_precollar_ext = double(0),
-        n_year_prestudy_ext = double(0),
-        nT_period_precollar_ext = double(0),
         nT_period_precollar = double(0),
         nT_period_collar = double(0),
-        nT_period_overall_ext = double(0),
-        nT_period_prestudy_ext = double(0),
+        nT_period_overall= double(0),
         yr_start = double(1),
         yr_end = double(1),
         period_effect_surv = double(1),
         period_annual_survival = double(1)) {
 
-  period_effect_survival_temp <- nimNumeric(nT_period_overall_ext)
-  period_effect_survival <- nimNumeric(nT_period_overall_ext)
-
-  for(i in 1:nT_period_prestudy_ext) {
-    period_effect_survival_temp[i] <- period_annual_survival[1]
-  }
+  period_effect_survival <- nimNumeric(nT_period_overall)
 
   for(i in 1:(n_year_precollar + 1)) {
-    period_effect_survival_temp[(yr_start[i] + nT_period_prestudy_ext):(yr_end[i] + nT_period_prestudy_ext)] <- period_annual_survival[i]
+    period_effect_survival[yr_start[i]:yr_end[i]] <- period_annual_survival[i]
   }
-
-  ### for the year of the study when switching from
-  ### estimating period effects from collar data
-  ### versus estimating from aah data
-
-  period_effect_survival_temp[
-          (yr_start[n_year_precollar] + nT_period_prestudy_ext):nT_period_precollar_ext] <-
-      period_annual_survival[n_year_precollar + 1]
 
   ############################################################
   ## incorporating period effects from collar data
   ############################################################
 
-  period_effect_survival_temp[(nT_period_precollar_ext + 1):
-                               nT_period_overall_ext] <-
+  period_effect_survival[(nT_period_precollar + 1):
+                               nT_period_overall] <-
                                period_effect_surv[1:nT_period_collar]
 
   #making the period effects sum to zero using centering
@@ -761,7 +756,7 @@ set_period_effects_constant <- nimble::nimbleFunction(
 #       mu_period
 
   returnType(double(1))
-  return(period_effect_survival_temp[1:nT_period_overall_ext])
+  return(period_effect_survival[1:nT_period_overall])
 })
 
 Cset_period_effects_constant <- compileNimble(set_period_effects_constant)
