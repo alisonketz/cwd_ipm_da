@@ -26,11 +26,11 @@
 ###   d_fit_hunt
 ###
 #######################################################################
-
 dFOIhunt <- nimble::nimbleFunction( # nolint
     run = function( # nolint
                    ### argument type declarations
                    x = integer(0),
+                   y = double(1),
                    n_cases = double(1),
                    n_samples = integer(0), # number of samples in dataset
                    a = double(1), # age (weeks) at harvest
@@ -70,7 +70,7 @@ dFOIhunt <- nimble::nimbleFunction( # nolint
                     lik_foi <- lik_foi + lam_foij 
                 }
                 p <- 1 - exp(-lik_foi)
-                lik_temp <- dbinom(x,1,p,log=TRUE)
+                lik_temp <- dbinom(y[i],1,p,log=TRUE)
             } else { # age loops for males
                 lik_foi <- 0
                 lam_foij <- 0
@@ -83,7 +83,7 @@ dFOIhunt <- nimble::nimbleFunction( # nolint
                     lik_foi <- lik_foi + lam_foij 
                 }
                 p <- 1 - exp(-lik_foi)
-                lik_temp <- dbinom(x,1,p,log=TRUE)
+                lik_temp <- dbinom(y[i],1,p,log=TRUE)
             } # end if(sex)
 
             #######################################
@@ -103,9 +103,10 @@ dFOIhunt <- nimble::nimbleFunction( # nolint
 
 nimble::registerDistributions(list(
     dFOIhunt = list(
-        BUGSdist = "dFOIhunt(n_cases,n_samples,a,sex,age2date,f_age_foi,m_age_foi,age_lookup_f,age_lookup_m,f_period_foi,m_period_foi,period_lookup_foi,space,sect)",
+        BUGSdist = "dFOIhunt(y,n_cases,n_samples,a,sex,age2date,f_age_foi,m_age_foi,age_lookup_f,age_lookup_m,f_period_foi,m_period_foi,period_lookup_foi,space,sect)",
         types = c(
             "value = integer(0)",
+            "y = double(1)",
             "n_cases = double(1)",
             "n_samples = integer(0)",
             "a = double(1)",
@@ -132,7 +133,6 @@ assign("dFOIhunt",
     dFOIhunt,
     envir = .GlobalEnv
 )
-
 # starttime <- Sys.time()
 # test <- dFOIhunt(
 #     x = d_fit_hunt$teststatus,

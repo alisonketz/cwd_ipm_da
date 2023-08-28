@@ -36,22 +36,22 @@ modelcode <- nimbleCode({
   m_age_foi_mu <- mean(m_age_foi[1:n_ageclassm])
   f_age_foi_mu <- mean(f_age_foi[1:n_ageclassf])
 
-  # Period effects 
-  # tau_period_foi_male  ~ dgamma(1, 1)
-  # tau_period_foi_female  ~ dgamma(1, 1)
+  ### Period effects
+  tau_period_foi_male  ~ dgamma(1, 1)
+  tau_period_foi_female  ~ dgamma(1, 1)
 
-  ###ICAR specification
-  # f_period_foi[1:n_year] ~ dcar_normal(adj = adj_period[1:n_adj_period],
-  #                                 weights = weights_period[1:n_adj_period],
-  #                                 num = num_period[1:n_year],
-  #                                 tau = tau_period_foi_female,
-  #                                 zero_mean = 1)
+  ##ICAR specification
+  f_period_foi[1:n_year] ~ dcar_normal(adj = adj_period[1:n_adj_period],
+                                  weights = weights_period[1:n_adj_period],
+                                  num = num_period[1:n_year],
+                                  tau = tau_period_foi_female,
+                                  zero_mean = 1)
   
-  # m_period_foi[1:n_year] ~ dcar_normal(adj = adj_period[1:n_adj_period],
-  #                                 weights = weights_period[1:n_adj_period],
-  #                                 num = num_period[1:n_year],
-  #                                 tau = tau_period_foi_male,
-  #                                 zero_mean = 1)
+  m_period_foi[1:n_year] ~ dcar_normal(adj = adj_period[1:n_adj_period],
+                                  weights = weights_period[1:n_adj_period],
+                                  num = num_period[1:n_year],
+                                  tau = tau_period_foi_male,
+                                  zero_mean = 1)
   ### RW1 Specification
   # tau1_period_foi_f <- .0000001 * tau_period_foi_female
   # tau1_period_foi_m <- .0000001 * tau_period_foi_male
@@ -179,23 +179,24 @@ modelcode <- nimbleCode({
   ###
   #######################################################################
 
-  # for (i in 1:n_fit_hunt){
-  #   y_hunt_foi_teststatus[i] ~ dFOIhunt(n_cases = n_cases_foi_hunt[1:n_fit_hunt],
-  #           n_samples = n_fit_hunt,
-  #           a = a_fit_hunt[1:n_fit_hunt],
-  #           sex = sex_fit_hunt[1:n_fit_hunt],
-  #           age2date = age2date_fit_hunt[1:n_fit_hunt],
-  #           f_age = f_age_foi[1:n_ageclassf],
-  #           m_age = m_age_foi[1:n_ageclassm],
-  #           age_lookup_f = age_lookup_f[1:nT_age_surv],
-  #           age_lookup_m = age_lookup_f[1:nT_age_surv],
-  #           period_lookup_foi = period_lookup_foi_hunt[1:nT_period_overall_hunt],
-  #           f_period = f_period_foi[1:n_year],
-  #           m_period = m_period_foi[1:n_year],
-  #           space = space[1:n_study_area],
-  #           sect = sect_hunt[1:n_fit_hunt]
-  #   )
-  # }
+  y_hunt_foi ~ dFOIhunt(
+          y = y_hunt_foi_teststatus[1:n_fit_hunt],
+          n_cases = n_cases_foi_hunt[1:n_fit_hunt],
+          n_samples = n_fit_hunt,
+          a = a_fit_hunt[1:n_fit_hunt],
+          sex = sex_fit_hunt[1:n_fit_hunt],
+          age2date = age2date_fit_hunt[1:n_fit_hunt],
+          f_age = f_age_foi[1:n_ageclassf],
+          m_age = m_age_foi[1:n_ageclassm],
+          age_lookup_f = age_lookup_f[1:n_age_lookup_f],
+          age_lookup_m = age_lookup_m[1:n_age_lookup_m],
+          period_lookup_foi = period_lookup_foi_hunt[1:nT_period_overall_hunt],
+          f_period = f_period_foi[1:n_year],
+          m_period = m_period_foi[1:n_year],
+          space = space[1:n_study_area],
+          sect = sect_hunt[1:n_fit_hunt]
+  )
+
 
   ######################################################################
   ##
@@ -384,68 +385,32 @@ modelcode <- nimbleCode({
 ###
 ##################################################################
 
-#   for (i in 1:n_fit_idead) {
-#     y_idead[i] ~ dSurvival_idead(
-#         e_age = idead_left_age_e[i],
-#         r_age = idead_right_age_r[i],
-#         s_age = idead_right_age_s[i],
-#         e_period = idead_left_period_e[i],
-#         s_period = idead_right_period_s[i],
-#         sex = idead_sex[i],
-#         age2date = idead_age2date[i],
-#         age_effect_survival = age_effect_survival[1:nT_age_surv],
-#         period_effect_survival = period_effect_survival[1:nT_period_overall],
-#         nT_age_surv = nT_age_surv,
-#         beta0_survival_inf = beta0_survival_inf,
-#         beta0_survival_sus = beta0_survival_sus,
-#         beta_male = beta_male,
-#         f_age_foi = f_age_foi[1:n_ageclassf],
-#         m_age_foi = m_age_foi[1:n_ageclassm],
-#         f_period_foi = f_period_foi[1:n_year],
-#         m_period_foi = m_period_foi[1:n_year],
-#         nT_period_overall = nT_period_overall,
-#         period_lookup_foi = period_lookup_foi[1:nT_period_overall],
-#         space = space[sect_idead[i]],
-#         age_lookup_f = age_lookup_f[1:nT_age_surv],
-#         age_lookup_m = age_lookup_m[1:nT_age_surv]
-#         )
-#   }
-
-
-# #   ##################################################################
-# #   ###
-# #   ###  User Defined Distribution Age-Period Survival Model
-# #   ###  for infected at recapture and was then right censored
-# #   ###  must draw when infected
-# #   ###
-# #   ###  d_fit_rec_pos_cens
-# #   ###  (there's only 1)
-# #   ###
-# #   ##################################################################
-
-#     y_rec_pos_cens ~ dSurvival_rec_pos_cens(
-#         e_age = rec_pos_cens_left_age_e,
-#         r_age = rec_pos_cens_right_age_r,
-#         recap_age = rec_pos_cens_ageweek_recap,
-#         e_period = rec_pos_cens_left_period_e,
-#         recap_period = rec_pos_cens_periodweek_recap,
-#         sex = rec_pos_cens_sex,
-#         age2date = rec_pos_cens_age2date,
-#         age_effect_survival = age_effect_survival[1:nT_age_surv],
-#         period_effect_survival = period_effect_survival[1:nT_period_overall],
-#         nT_age_surv = nT_age_surv,
-#         beta0_survival_inf = beta0_survival_inf,
-#         beta0_survival_sus = beta0_survival_sus,
-#         beta_male = beta_male,
-#         f_age_foi = f_age_foi[1:n_ageclassf],
-#         m_age_foi = m_age_foi[1:n_ageclassm],
-#         f_period_foi = f_period_foi[1:n_year],
-#         m_period_foi = m_period_foi[1:n_year],
-#         nT_period_overall = nT_period_overall,
-#         period_lookup_foi = period_lookup_foi[1:nT_period_overall],
-#         space = space[sect_rec_pos_cens],
-#         age_lookup_f = age_lookup_f[1:nT_age_surv],
-#         age_lookup_m = age_lookup_m[1:nT_age_surv])
+  for (i in 1:n_fit_idead) {
+    y_idead[i] ~ dSurvival_idead(
+        e_age = idead_left_age_e[i],
+        r_age = idead_right_age_r[i],
+        s_age = idead_right_age_s[i],
+        e_period = idead_left_period_e[i],
+        s_period = idead_right_period_s[i],
+        sex = idead_sex[i],
+        age2date = idead_age2date[i],
+        age_effect_survival = age_effect_survival[1:nT_age_surv],
+        period_effect_survival = period_effect_survival[1:nT_period_overall],
+        nT_age_surv = nT_age_surv,
+        beta0_survival_inf = beta0_survival_inf,
+        beta0_survival_sus = beta0_survival_sus,
+        beta_male = beta_male,
+        f_age_foi = f_age_foi[1:n_ageclassf],
+        m_age_foi = m_age_foi[1:n_ageclassm],
+        f_period_foi = f_period_foi[1:n_year],
+        m_period_foi = m_period_foi[1:n_year],
+        nT_period_overall = nT_period_overall,
+        period_lookup_foi = period_lookup_foi[1:nT_period_overall],
+        space = space[sect_idead[i]],
+        age_lookup_f = age_lookup_f[1:nT_age_surv],
+        age_lookup_m = age_lookup_m[1:nT_age_surv]
+        )
+  }
 
 
 #   ##################################################################
@@ -454,146 +419,182 @@ modelcode <- nimbleCode({
 #   ###  for infected at recapture and was then right censored
 #   ###  must draw when infected
 #   ###
-#   ###  d_fit_rec_pos_mort
+#   ###  d_fit_rec_pos_cens
+#   ###  (there's only 1)
 #   ###
 #   ##################################################################
 
-#   for(i in 1:n_fit_rec_pos_mort){
-#     y_rec_pos_mort[i] ~ dSurvival_rec_pos_mort(
-#         e_age = rec_pos_mort_left_age_e[i],
-#         r_age = rec_pos_mort_right_age_r[i],
-#         s_age = rec_pos_mort_right_age_s[i],
-#         recap_age = rec_pos_mort_ageweek_recap[i],
-#         e_period = rec_pos_mort_left_period_e[i],
-#         recap_period = rec_pos_mort_periodweek_recap[i],
-#         sex = rec_pos_mort_sex[i],
-#         age2date = rec_pos_mort_age2date[i],
-#         age_effect_survival = age_effect_survival[1:nT_age_surv],
-#         period_effect_survival = period_effect_survival[1:nT_period_overall],
-#         nT_age_surv = nT_age_surv,
-#         beta0_survival_inf = beta0_survival_inf,
-#         beta0_survival_sus = beta0_survival_sus,
-#         beta_male = beta_male,
-#         f_age_foi = f_age_foi[1:n_ageclassf],
-#         m_age_foi = m_age_foi[1:n_ageclassm],
-#         f_period_foi = f_period_foi[1:n_year],
-#         m_period_foi = m_period_foi[1:n_year],
-#         nT_period_overall = nT_period_overall,
-#         period_lookup_foi = period_lookup_foi[1:nT_period_overall],
-#         space = space[sect_rec_pos_mort[i]],
-#         age_lookup_f = age_lookup_f[1:nT_age_surv],
-#         age_lookup_m = age_lookup_m[1:nT_age_surv])
-#   }
+    y_rec_pos_cens ~ dSurvival_rec_pos_cens(
+        e_age = rec_pos_cens_left_age_e,
+        r_age = rec_pos_cens_right_age_r,
+        recap_age = rec_pos_cens_ageweek_recap,
+        e_period = rec_pos_cens_left_period_e,
+        recap_period = rec_pos_cens_periodweek_recap,
+        sex = rec_pos_cens_sex,
+        age2date = rec_pos_cens_age2date,
+        age_effect_survival = age_effect_survival[1:nT_age_surv],
+        period_effect_survival = period_effect_survival[1:nT_period_overall],
+        nT_age_surv = nT_age_surv,
+        beta0_survival_inf = beta0_survival_inf,
+        beta0_survival_sus = beta0_survival_sus,
+        beta_male = beta_male,
+        f_age_foi = f_age_foi[1:n_ageclassf],
+        m_age_foi = m_age_foi[1:n_ageclassm],
+        f_period_foi = f_period_foi[1:n_year],
+        m_period_foi = m_period_foi[1:n_year],
+        nT_period_overall = nT_period_overall,
+        period_lookup_foi = period_lookup_foi[1:nT_period_overall],
+        space = space[sect_rec_pos_cens],
+        age_lookup_f = age_lookup_f[1:nT_age_surv],
+        age_lookup_m = age_lookup_m[1:nT_age_surv])
 
-#   ###########################################################################
-#   ###
-#   ###  User Defined Distribution Age-Period Survival Model
-#   ###  no test after initial capture, first drawing if gets infected
-#   ###  then if it gets infected, accounting for the suscepting and infected
-#   ###  portions in the joint likelihood
-#   ###
-#   ###  d_fit_sus_draw
-#   ###
-#   ############################################################################
 
-#   for(i in 1:n_fit_sus_draw) {
-#       y_sus_draw[i] ~ dSurvival_sus_draw(
-#               e_age = sus_draw_left_age_e[i],
-#               r_age = sus_draw_right_age_r[i],
-#               e_period = sus_draw_left_period_e[i],
-#               r_period = sus_draw_right_period_r[i],
-#               sex = sus_draw_sex[i],
-#               age2date = sus_draw_age2date[i],
-#               age_effect_survival = age_effect_survival[1:nT_age_surv],
-#               period_effect_survival = period_effect_survival[1:nT_period_overall],
-#               nT_age_surv = nT_age_surv,
-#               beta0_survival_inf = beta0_survival_inf,
-#               beta0_survival_sus = beta0_survival_sus,
-#               beta_male = beta_male,
-#               f_age_foi = f_age_foi[1:n_ageclassf],
-#               m_age_foi = m_age_foi[1:n_ageclassm],
-#               f_period_foi = f_period_foi[1:n_year],
-#               m_period_foi = m_period_foi[1:n_year],
-#               nT_period_overall = nT_period_overall,
-#               period_lookup_foi = period_lookup_foi[1:nT_period_overall],
-#               space = space[sect_sus_draw[i]],
-#               age_lookup_f = age_lookup_f[1:nT_age_surv],
-#               age_lookup_m = age_lookup_m[1:nT_age_surv])
-#   }
+  ##################################################################
+  ###
+  ###  User Defined Distribution Age-Period Survival Model
+  ###  for infected at recapture and was then right censored
+  ###  must draw when infected
+  ###
+  ###  d_fit_rec_pos_mort
+  ###
+  ##################################################################
 
-#   # ##################################################################
-#   # ###
-#   # ###  User Defined Distribution Age-Period Survival Model
-#   # ###  no test after initial capture, first drawing if gets infected
-#   # ###  then if it gets infected, accounting for the susceptible and infected
-#   # ###  portions in the joint likelihood, these individuals died
-#   # ###
-#   # ###  d_fit_sus_mort_postno
-#   # ###
-#   # ##################################################################
+  for(i in 1:n_fit_rec_pos_mort){
+    y_rec_pos_mort[i] ~ dSurvival_rec_pos_mort(
+        e_age = rec_pos_mort_left_age_e[i],
+        r_age = rec_pos_mort_right_age_r[i],
+        s_age = rec_pos_mort_right_age_s[i],
+        recap_age = rec_pos_mort_ageweek_recap[i],
+        e_period = rec_pos_mort_left_period_e[i],
+        recap_period = rec_pos_mort_periodweek_recap[i],
+        sex = rec_pos_mort_sex[i],
+        age2date = rec_pos_mort_age2date[i],
+        age_effect_survival = age_effect_survival[1:nT_age_surv],
+        period_effect_survival = period_effect_survival[1:nT_period_overall],
+        nT_age_surv = nT_age_surv,
+        beta0_survival_inf = beta0_survival_inf,
+        beta0_survival_sus = beta0_survival_sus,
+        beta_male = beta_male,
+        f_age_foi = f_age_foi[1:n_ageclassf],
+        m_age_foi = m_age_foi[1:n_ageclassm],
+        f_period_foi = f_period_foi[1:n_year],
+        m_period_foi = m_period_foi[1:n_year],
+        nT_period_overall = nT_period_overall,
+        period_lookup_foi = period_lookup_foi[1:nT_period_overall],
+        space = space[sect_rec_pos_mort[i]],
+        age_lookup_f = age_lookup_f[1:nT_age_surv],
+        age_lookup_m = age_lookup_m[1:nT_age_surv])
+  }
 
-#   for(i in 1:n_fit_sus_mort_postno) {
-#       y_sus_mort_postno[i] ~ dSurvival_sus_mort_postno(
-#         e_age = sus_mort_postno_left_age_e[i],
-#         r_age = sus_mort_postno_right_age_r[i],
-#         s_age = sus_mort_postno_right_age_s[i],
-#         e_period = sus_mort_postno_left_period_e[i],
-#         s_period = sus_mort_postno_right_period_s[i],
-#         sex = sus_mort_postno_sex[i],
-#         age2date = sus_mort_postno_age2date[i],
-#         age_effect_survival = age_effect_survival[1:nT_age_surv],
-#         period_effect_survival = period_effect_survival[1:nT_period_overall],
-#         nT_age_surv = nT_age_surv,
-#         beta0_survival_inf = beta0_survival_inf,
-#         beta0_survival_sus = beta0_survival_sus,
-#         beta_male = beta_male,
-#         f_age_foi = f_age_foi[1:n_ageclassf],
-#         m_age_foi = m_age_foi[1:n_ageclassm],
-#         f_period_foi = f_period_foi[1:n_year],
-#         m_period_foi = m_period_foi[1:n_year],
-#         nT_period_overall = nT_period_overall,
-#         period_lookup_foi = period_lookup_foi[1:nT_period_overall],
-#         space = space[sect_sus_mort_postno[i]],
-#         age_lookup_f = age_lookup_f[1:nT_age_surv],
-#         age_lookup_m = age_lookup_m[1:nT_age_surv])
-#   }
+  ###########################################################################
+  ###
+  ###  User Defined Distribution Age-Period Survival Model
+  ###  no test after initial capture, first drawing if gets infected
+  ###  then if it gets infected, accounting for the suscepting and infected
+  ###  portions in the joint likelihood
+  ###
+  ###  d_fit_sus_draw
+  ###
+  ############################################################################
 
-#   #######################################################################
-#   ###
-#   ###   User defined distribution for likelihood for Survival of
-#   ###   collared deer that test pos at entry
-#   ###
-#   ###  # must DRAW when infection occurs
-#   ###   d_fit_rec_neg_cens_postno
-#   ###
-#   #######################################################################
+  for(i in 1:n_fit_sus_draw) {
+      y_sus_draw[i] ~ dSurvival_sus_draw(
+              e_age = sus_draw_left_age_e[i],
+              r_age = sus_draw_right_age_r[i],
+              e_period = sus_draw_left_period_e[i],
+              r_period = sus_draw_right_period_r[i],
+              sex = sus_draw_sex[i],
+              age2date = sus_draw_age2date[i],
+              age_effect_survival = age_effect_survival[1:nT_age_surv],
+              period_effect_survival = period_effect_survival[1:nT_period_overall],
+              nT_age_surv = nT_age_surv,
+              beta0_survival_inf = beta0_survival_inf,
+              beta0_survival_sus = beta0_survival_sus,
+              beta_male = beta_male,
+              f_age_foi = f_age_foi[1:n_ageclassf],
+              m_age_foi = m_age_foi[1:n_ageclassm],
+              f_period_foi = f_period_foi[1:n_year],
+              m_period_foi = m_period_foi[1:n_year],
+              nT_period_overall = nT_period_overall,
+              period_lookup_foi = period_lookup_foi[1:nT_period_overall],
+              space = space[sect_sus_draw[i]],
+              age_lookup_f = age_lookup_f[1:nT_age_surv],
+              age_lookup_m = age_lookup_m[1:nT_age_surv])
+  }
+
+  # ##################################################################
+  # ###
+  # ###  User Defined Distribution Age-Period Survival Model
+  # ###  no test after initial capture, first drawing if gets infected
+  # ###  then if it gets infected, accounting for the susceptible and infected
+  # ###  portions in the joint likelihood, these individuals died
+  # ###
+  # ###  d_fit_sus_mort_postno
+  # ###
+  # ##################################################################
+
+  for(i in 1:n_fit_sus_mort_postno) {
+      y_sus_mort_postno[i] ~ dSurvival_sus_mort_postno(
+        e_age = sus_mort_postno_left_age_e[i],
+        r_age = sus_mort_postno_right_age_r[i],
+        s_age = sus_mort_postno_right_age_s[i],
+        e_period = sus_mort_postno_left_period_e[i],
+        s_period = sus_mort_postno_right_period_s[i],
+        sex = sus_mort_postno_sex[i],
+        age2date = sus_mort_postno_age2date[i],
+        age_effect_survival = age_effect_survival[1:nT_age_surv],
+        period_effect_survival = period_effect_survival[1:nT_period_overall],
+        nT_age_surv = nT_age_surv,
+        beta0_survival_inf = beta0_survival_inf,
+        beta0_survival_sus = beta0_survival_sus,
+        beta_male = beta_male,
+        f_age_foi = f_age_foi[1:n_ageclassf],
+        m_age_foi = m_age_foi[1:n_ageclassm],
+        f_period_foi = f_period_foi[1:n_year],
+        m_period_foi = m_period_foi[1:n_year],
+        nT_period_overall = nT_period_overall,
+        period_lookup_foi = period_lookup_foi[1:nT_period_overall],
+        space = space[sect_sus_mort_postno[i]],
+        age_lookup_f = age_lookup_f[1:nT_age_surv],
+        age_lookup_m = age_lookup_m[1:nT_age_surv])
+  }
+
+  #######################################################################
+  ###
+  ###   User defined distribution for likelihood for Survival of
+  ###   collared deer that test pos at entry
+  ###
+  ###  # must DRAW when infection occurs
+  ###   d_fit_rec_neg_cens_postno
+  ###
+  #######################################################################
   
-#   for(i in 1:n_fit_rec_neg_cens_postno) {
-#     y_rec_neg_cens_postno[i] ~ dSurvival_rec_neg_cens_postno(
-#         e_age = rec_neg_cens_postno_left_age_e[i],
-#         r_age = rec_neg_cens_postno_right_age_r[i],
-#         recap_age = rec_neg_cens_postno_ageweek_recap[i],
-#         e_period = rec_neg_cens_postno_left_period_e[i],
-#         r_period = rec_neg_cens_postno_right_period_r[i],
-#         recap_period = rec_neg_cens_postno_periodweek_recap[i],
-#         sex = rec_neg_cens_postno_sex[i],
-#         age2date = rec_neg_cens_postno_age2date[i],
-#         age_effect_survival = age_effect_survival[1:nT_age_surv],
-#         period_effect_survival = period_effect_survival[1:nT_period_overall],
-#         nT_age_surv = nT_age_surv,
-#         beta0_survival_inf = beta0_survival_inf,
-#         beta0_survival_sus = beta0_survival_sus,
-#         beta_male = beta_male,
-#         f_age_foi = f_age_foi[1:n_ageclassf],
-#         m_age_foi = m_age_foi[1:n_ageclassm],
-#         f_period_foi = f_period_foi[1:n_year],
-#         m_period_foi = m_period_foi[1:n_year],
-#         nT_period_overall = nT_period_overall,
-#         period_lookup_foi = period_lookup_foi[1:nT_period_overall],
-#         space = space[sect_rec_neg_cens_postno[i]],
-#         age_lookup_f = age_lookup_f[1:nT_age_surv],
-#         age_lookup_m = age_lookup_m[1:nT_age_surv])
-#   }
+  for(i in 1:n_fit_rec_neg_cens_postno) {
+    y_rec_neg_cens_postno[i] ~ dSurvival_rec_neg_cens_postno(
+        e_age = rec_neg_cens_postno_left_age_e[i],
+        r_age = rec_neg_cens_postno_right_age_r[i],
+        recap_age = rec_neg_cens_postno_ageweek_recap[i],
+        e_period = rec_neg_cens_postno_left_period_e[i],
+        r_period = rec_neg_cens_postno_right_period_r[i],
+        recap_period = rec_neg_cens_postno_periodweek_recap[i],
+        sex = rec_neg_cens_postno_sex[i],
+        age2date = rec_neg_cens_postno_age2date[i],
+        age_effect_survival = age_effect_survival[1:nT_age_surv],
+        period_effect_survival = period_effect_survival[1:nT_period_overall],
+        nT_age_surv = nT_age_surv,
+        beta0_survival_inf = beta0_survival_inf,
+        beta0_survival_sus = beta0_survival_sus,
+        beta_male = beta_male,
+        f_age_foi = f_age_foi[1:n_ageclassf],
+        m_age_foi = m_age_foi[1:n_ageclassm],
+        f_period_foi = f_period_foi[1:n_year],
+        m_period_foi = m_period_foi[1:n_year],
+        nT_period_overall = nT_period_overall,
+        period_lookup_foi = period_lookup_foi[1:nT_period_overall],
+        space = space[sect_rec_neg_cens_postno[i]],
+        age_lookup_f = age_lookup_f[1:nT_age_surv],
+        age_lookup_m = age_lookup_m[1:nT_age_surv])
+  }
 
 
 
