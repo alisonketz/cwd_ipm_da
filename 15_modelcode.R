@@ -147,11 +147,11 @@ modelcode <- nimbleCode({
                                     Z_period[t, 1:nknots_period])
   }
 
-  #Period effects from aah data
-  tau_period_precollar ~ dgamma(1,1)
-  for (k in 1:n_year_precollar) {
-    period_annual_survival[k] ~ dnorm(0, tau_period_precollar)
-  }
+  # #Period effects from aah data
+  # tau_period_precollar ~ dgamma(1,1)
+  # for (k in 1:n_year_precollar) {
+  #   period_annual_survival[k] ~ dnorm(0, tau_period_precollar)
+  # }
 
   period_effect_survival[1:nT_period_overall] <- set_period_effects_constant(
         n_year_precollar = n_year_precollar,

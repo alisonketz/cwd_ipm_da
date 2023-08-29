@@ -191,7 +191,8 @@ nimConsts <- list(n_year = n_year,
     sect_sus_mort_postno = d_fit_sus_mort_postno$study_area,
     sect_rec_neg_cens_postno = d_fit_rec_neg_cens_postno$study_area,
     records_cause = records_cause,
-    interval_cause = d_fit_hh$right_period_s - 1#,
+    interval_cause = d_fit_hh$right_period_s - 1,
+    period_annual_survival = rep(0,n_year_precollar + 1)#,
     # f_period_foi = rep(0, n_year),
     # m_period_foi = rep(0, n_year)
     # indx_mat_pe_surv = indx_mat_pe_surv,
@@ -235,7 +236,7 @@ initsFun <- function()list(beta_male = rnorm(1, -.5, .01),
                   rnorm(1, -7.2, sd = .1),
                   rnorm(1, -8, sd = .1)) - 1.5,
     tau_period_precollar = rgamma(1, 1, 1),
-    period_annual_survival = rnorm(n_year_precollar + 1, .1),
+    # period_annual_survival = rnorm(n_year_precollar + 1, .1),
     beta0_cause = rnorm(1, -2.8, .1),
     beta_cause_male = rnorm(1, 0, .1),
     beta_cause_gun = rnorm(1, 1.5, .1),
@@ -318,6 +319,8 @@ parameters <- c(
               # "mu_fec",
               # "fec_prec_eps",
               # "fec_epsilon",
+              "psi",
+              "psi_hat",
               "sn_inf",
               "sn_sus",
               "sh_inf",
@@ -337,8 +340,8 @@ CnimMCMC <- compileNimble(nimMCMC,
                          project = Rmodel)
 for(i in 1:10){beepr::beep(1)}
 
-reps <- 1000
-nbin <- 0
+reps <- 2000
+nbin <- 1000
 n_chains <- 1
 
 set.seed(1001)
