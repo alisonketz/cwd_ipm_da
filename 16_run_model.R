@@ -301,7 +301,7 @@ parameters <- c(
               "ln_b_age_survival",
               "b_period_survival",
               "tau_period_survival",
-              "tau_period_precollar",
+              # "tau_period_precollar",
               "period_effect_survival",
             #   "beta0_inf_temp",
             #   "inf_mix",
@@ -340,8 +340,8 @@ CnimMCMC <- compileNimble(nimMCMC,
                          project = Rmodel)
 for(i in 1:10){beepr::beep(1)}
 
-reps <- 2000
-nbin <- 1000
+reps <- 1000
+nbin <- reps * .5
 n_chains <- 1
 
 set.seed(1001)
@@ -517,5 +517,5 @@ for (i in 1:10) {beepr::beep(1)}
 # ### save model run
 # ###
 
-# # save(runtime,file="results/runtime.Rdata")
-# # save(mcmcout,file="results/mcmcout.Rdata")
+# # save(runtime,file = "results/runtime.Rdata")
+# # save(mcmcout, file = "results/mcmcout.Rdata")

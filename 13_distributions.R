@@ -473,14 +473,13 @@ dSurvival_idead <- nimble::nimbleFunction(
                       beta_male * sex)
     }
     # total prob of surviving
-    p <- exp(-sum(UCH_sus[e_age:(e_age + age_add - 1)]))
-    lik_sus <- dbinom(1, 1, p, log = TRUE)
+    lik_sus <- -sum(UCH_sus[e_age:(e_age + age_add - 1)])
 
     ###############################################
     ### Survival likelihood  - Infected portion 
     ###############################################
 
-    UCH_inf <-nimNumeric(nT_age_surv)
+    UCH_inf <- nimNumeric(nT_age_surv)
     for (k in (e_age + age_add):(s_age - 1)) {
         UCH_inf[k] <- exp(beta0_survival_inf + 
                       age_effect_survival[k] +
@@ -488,10 +487,9 @@ dSurvival_idead <- nimble::nimbleFunction(
                       beta_male * sex)
     }
     # total prob of surviving
-    p_inf_alive <- exp(-sum(UCH_inf[(e_age + age_add):(r_age - 1)]))
-    lik_inf_alive <- dbinom(1, 1, p_inf_alive, log = TRUE)
+    lik_inf_alive <- -sum(UCH_inf[(e_age + age_add):(r_age - 1)])
     p_inf_dead <- 1 - exp(-sum(UCH_inf[(r_age):(s_age - 1)]))
-    lik_inf_dead <- dbinom(0, 1, p_inf_dead, log = TRUE)
+    lik_inf_dead <- log(p_inf_dead) 
 
     #total log likelihood
     logL <- lik_sus + lik_inf_alive + lik_inf_dead
@@ -662,15 +660,14 @@ dSurvival_rec_pos_cens <- nimble::nimbleFunction(
     ###############################################
 
     UCH_sus <-nimNumeric(nT_age_surv)
-    for (k in e_age:(e_age + age_add -1)) {
-        UCH_sus[k] <- exp(beta0_survival_sus + 
+    for (k in e_age:(e_age + age_add - 1)) {
+        UCH_sus[k] <- exp(beta0_survival_sus +
                       age_effect_survival[k] +
                       period_effect_survival[k + age2date] +
                       beta_male * sex)
     }
     # total prob of surviving
-    p <- exp(-sum(UCH_sus[e_age:(e_age + age_add - 1)]))
-    lik_sus <- dbinom(1, 1, p, log = TRUE)
+    lik_sus <- -sum(UCH_sus[e_age:(e_age + age_add - 1)])
 
     ###############################################
     ### Survival likelihood  - Infected portion 
@@ -678,14 +675,13 @@ dSurvival_rec_pos_cens <- nimble::nimbleFunction(
 
     UCH_inf <-nimNumeric(nT_age_surv)
     for (k in (e_age + age_add):(r_age - 1)) {
-        UCH_inf[k] <- exp(beta0_survival_inf + 
+        UCH_inf[k] <- exp(beta0_survival_inf +
                       age_effect_survival[k] +
                       period_effect_survival[k + age2date] +
                       beta_male * sex)
     }
     # total prob of surviving
-    p_inf_alive <- exp(-sum(UCH_inf[(e_age + age_add):(r_age - 1)]))
-    lik_inf_alive <- dbinom(1, 1, p_inf_alive, log = TRUE)
+    lik_inf_alive <- -sum(UCH_inf[(e_age + age_add):(r_age - 1)])
    
     #total log likelihood
     logL <- lik_sus + lik_inf_alive
@@ -862,8 +858,7 @@ dSurvival_rec_pos_mort <- nimble::nimbleFunction(
                       beta_male * sex)
     }
     # total prob of surviving
-    p <- exp(-sum(UCH_sus[e_age:(e_age + age_add - 1)]))
-    lik_sus <- dbinom(1, 1, p, log = TRUE)
+    lik_sus <- -sum(UCH_sus[e_age:(e_age + age_add - 1)])
 
     ###############################################
     ### Survival likelihood  - Infected portion 
@@ -877,10 +872,9 @@ dSurvival_rec_pos_mort <- nimble::nimbleFunction(
                       beta_male * sex)
     }
     # total prob of surviving
-    p_inf_alive <- exp(-sum(UCH_inf[(e_age + age_add):(r_age - 1)]))
-    lik_inf_alive <- dbinom(1, 1, p_inf_alive, log = TRUE)
+    lik_inf_alive <- -sum(UCH_inf[(e_age + age_add):(r_age - 1)])
     p_inf_dead <- 1 - exp(-sum(UCH_inf[(r_age):(s_age - 1)]))
-    lik_inf_dead <- dbinom(0, 1, p_inf_dead, log = TRUE)
+    lik_inf_dead <- log(p_inf_dead)
 
     #total log likelihood
     logL <- lik_sus + lik_inf_alive + lik_inf_dead
@@ -1102,8 +1096,7 @@ dSurvival_sus_draw <- nimble::nimbleFunction(
                         beta_male * sex)
         }
         # total prob of surviving
-        p <- exp(-sum(UCH_sus[e_age:(e_age + age_add - 1)]))
-        lik_sus <- dbinom(1, 1, p, log = TRUE)
+        lik_sus <- -sum(UCH_sus[e_age:(e_age + age_add - 1)])
 
         ###############################################
         ### Survival likelihood  - Infected portion 
@@ -1117,8 +1110,7 @@ dSurvival_sus_draw <- nimble::nimbleFunction(
                         beta_male * sex)
         }
         # total prob of surviving
-        p_inf_alive <- exp(-sum(UCH_inf[(e_age + age_add):(r_age - 1)]))
-        lik_inf_alive <- dbinom(1, 1, p_inf_alive, log = TRUE)
+        lik_inf_alive <- -sum(UCH_inf[(e_age + age_add):(r_age - 1)])
 
         #total log likelihood
         logL <- lik_sus + lik_inf_alive
@@ -1137,8 +1129,7 @@ dSurvival_sus_draw <- nimble::nimbleFunction(
                         beta_male * sex)
         }
         # total prob of surviving
-        p <- exp(-sum(UCH_sus[e_age:(r_age - 1)]))
-        logL <- dbinom(1, 1, p, log = TRUE)
+        logL <- -sum(UCH_sus[e_age:(r_age - 1)])
     } #end else
     returnType(double())
     if(log) return(logL) else return(exp(logL))    ## return log-likelihood
@@ -1313,8 +1304,7 @@ dSurvival_sus_mort_postno <- nimble::nimbleFunction(
                         beta_male * sex)
         }
         # total prob of surviving
-        p <- exp(-sum(UCH_sus[e_age:(e_age + age_add - 1)]))
-        lik_sus <- dbinom(1, 1, p, log = TRUE)
+        lik_sus <- -sum(UCH_sus[e_age:(e_age + age_add - 1)])
 
         ###############################################
         ### Survival likelihood  - Infected portion 
@@ -1328,10 +1318,9 @@ dSurvival_sus_mort_postno <- nimble::nimbleFunction(
                         beta_male * sex)
         }
         # total prob of surviving
-        p_inf_alive <- exp(-sum(UCH_inf[(e_age + age_add):(r_age - 1)]))
-        lik_inf_alive <- dbinom(1, 1, p_inf_alive, log = TRUE)
+        lik_inf_alive <- -sum(UCH_inf[(e_age + age_add):(r_age - 1)])
         p_inf_dead <- 1 - exp(-sum(UCH_inf[(r_age):(s_age - 1)]))
-        lik_inf_dead <- dbinom(0, 1, p_inf_dead, log = TRUE)
+        lik_inf_dead <- log(p_inf_dead)
 
         #total log likelihood
         logL <- lik_sus + lik_inf_alive + lik_inf_dead
@@ -1350,10 +1339,9 @@ dSurvival_sus_mort_postno <- nimble::nimbleFunction(
                         beta_male * sex)
         }
         # total prob of surviving
-        p_sus_alive <- exp(-sum(UCH_sus[e_age:r_age]))
-        lik_sus_alive <- dbinom(1, 1, p_sus_alive, log = TRUE)
+        lik_sus_alive <- -sum(UCH_sus[e_age:r_age])
         p_sus_dead <- 1 - exp(-sum(UCH_sus[(r_age):(s_age - 1)]))
-        lik_sus_dead <- dbinom(0, 1, p_sus_dead, log = TRUE)
+        lik_sus_dead <- log(p_sus_dead)
 
         logL <- lik_sus + lik_sus_alive + lik_sus_dead
     } #end else
@@ -1535,8 +1523,7 @@ dSurvival_rec_neg_cens_postno <- nimble::nimbleFunction(
                         beta_male * sex)
         }
         # total prob of surviving
-        p <- exp(-sum(UCH_sus[e_age:(e_age + age_add - 1)]))
-        lik_sus <- dbinom(1, 1, p, log = TRUE)
+        lik_sus <- -sum(UCH_sus[e_age:(e_age + age_add - 1)])
 
         ###############################################
         ### Survival likelihood  - Infected portion 
@@ -1550,8 +1537,7 @@ dSurvival_rec_neg_cens_postno <- nimble::nimbleFunction(
                         beta_male * sex)
         }
         # total prob of surviving
-        p_inf_alive <- exp(-sum(UCH_inf[(e_age + age_add):(r_age - 1)]))
-        lik_inf_alive <- dbinom(1, 1, p_inf_alive, log = TRUE)
+        lik_inf_alive <- -sum(UCH_inf[(e_age + age_add):(r_age - 1)])
 
         #total log likelihood
         logL <- lik_sus + lik_inf_alive
@@ -1570,8 +1556,7 @@ dSurvival_rec_neg_cens_postno <- nimble::nimbleFunction(
                         beta_male * sex)
         }
         # total prob of surviving
-        p <- exp(-sum(UCH_sus[e_age:(r_age - 1)]))
-        logL <- dbinom(1, 1, p, log = TRUE)
+        logL <- -sum(UCH_sus[e_age:(r_age - 1)])
     } #end else
     returnType(double())
     if(log) return(logL) else return(exp(logL))    ## return log-likelihood

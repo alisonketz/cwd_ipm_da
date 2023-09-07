@@ -6,15 +6,15 @@
 
 # source("summarize.R")
 
-# load("mcmcout.Rdata")
+# load("results/mcmcout.Rdata")
 # load("runtime.Rdata")
 # out <- mcmc.list(mcmcout)
 # fit_sum <- summarize(out)
 fit_sum <- mcmcout$summary
-fit_sum <- mcmcout$summary$all.chains
+# fit_sum <- mcmcout$summary$all.chains
 out <- mcmcout$samples
 
-modelid <- "A"
+modelid <- "C"
 
 #############################
 ### from single run
@@ -73,13 +73,22 @@ traceplot(out[, "p_gun_m"], ylab = "p_gun_m")
 # traceplot(out[, "tau_pop[2, 2]"], ylab = "tau_pop[2, 2]")
 dev.off()
 
-png(paste0("figures/beta0_survival_sus_traceplot_",modelid,".png"))
+png(paste0("figures/",modelid,"/beta0_survival_sus_traceplot_",modelid,".png"))
 traceplot(out[, "beta0_survival_sus"], ylab = "beta0_survival_sus")
 dev.off()
 
-png(paste0("figures/beta0_survival_inf_traceplot_",modelid,".png"))
+png(paste0("figures/",modelid,"/beta0_survival_inf_traceplot_",modelid,".png"))
 traceplot(out[, "beta0_survival_inf"], ylab = "beta0_survival_inf")
 dev.off()
+
+png(paste0("figures/",modelid,"/beta0_survival_sus_densityplot_",modelid,".png"))
+densityplot(out[, "beta0_survival_sus"], ylab = "beta0_survival_sus")
+dev.off()
+
+png(paste0("figures/",modelid,"/beta0_survival_inf_densityplot_",modelid,".png"))
+densityplot(out[, "beta0_survival_inf"], ylab = "beta0_survival_inf")
+dev.off()
+
 
 # png(paste0("figures/tau_obs_traceplot_",modelid,".png"))
 # traceplot(out[, "tau_obs"], ylab = "tau_obs")
@@ -102,23 +111,45 @@ dev.off()
 # mu_obs_plot <- ggplot(data = mu_obs_out) + geom_point(aes(x=year,y=mu_obs_mean)) + facet_nested_wrap(~ study_area + sex)+ theme_bw()
 # ggsave(paste0("figures/mu_obs_mn_",modelid,".png"), mu_obs_plot)
 
-
 #############################
 ### psi
 #############################
+tail(fit_sum[grep("psi", rownames(fit_sum)),])
+length(grep("psi", rownames(fit_sum)))
+length(grep("psi_hat", rownames(fit_sum)))
 
-psi_out <- data.frame(psi = fit_sum[grep("psi", rownames(fit_sum)), 1],
-    study_area = rep(c("east", "west"), 1120/2),
-    sex = rep(c("Female", "Female", "Male", "Male"), 1120/4),
-    age = rep(rep(1:10, each = 4), 28),
-    year = rep(1:28, each = 40)
+psi_out <- data.frame(psi = fit_sum[grep("psi", rownames(fit_sum))[1:800], 1],
+    study_area = rep(c("east", "west"), 800/2),
+    sex = rep(c("Female", "Female", "Male", "Male"), 800/4),
+    age = rep(rep(1:10, each = 4), n_year),
+    year = rep(1:n_year, each = 40)
 )
 psi_out$age <- as.factor(psi_out$age)
 psi_out <- psi_out[!(psi_out$sex == "Male" & psi_out$age %in% c(8,9,10)),] 
 
 
 psi_plot <- ggplot(data = psi_out) + geom_point(aes(x=year,y=psi,color=age)) + facet_nested_wrap(~ study_area + sex)+ theme_bw()
-ggsave(paste0("figures/psi_mn_",modelid,".png"), psi_plot)
+ggsave(paste0("figures/",modelid,"/psi_mn_",modelid,".png"), psi_plot)
+
+
+
+
+#############################
+### psi_hat
+#############################
+psi_hat_out <- data.frame(psi = fit_sum[grep("psi_hat", rownames(fit_sum)), 1],
+    study_area = rep(c("east", "west"), 800/2),
+    sex = rep(c("Female", "Female", "Male", "Male"), 800/4),
+    age = rep(rep(1:10, each = 4), n_year),
+    year = rep(1:n_year, each = 40)
+)
+psi_hat_out$age <- as.factor(psi_hat_out$age)
+psi_hat_out <- psi_hat_out[!(psi_hat_out$sex == "Male" & psi_hat_out$age %in% c(8,9,10)),] 
+
+
+psi_hat_plot <- ggplot(data = psi_hat_out) + geom_point(aes(x=year,y=psi,color=age)) + facet_nested_wrap(~ study_area + sex)+ theme_bw()
+ggsave(paste0("figures/",modelid,"/psi_hat_mn_",modelid,".png"), psi_plot)
+
 
 #############################
 ### sn_sus
@@ -134,7 +165,7 @@ sn_sus_out <- sn_sus_out[!(sn_sus_out$sex == "Male" & sn_sus_out$age %in% c(8,9,
 
 
 sn_sus_plot <- ggplot(data = sn_sus_out) + geom_point(aes(x=year,y=sn_sus,color=age)) + facet_wrap(~ sex)+ theme_bw()
-ggsave(paste0("figures/sn_sus_mn_",modelid,".png"), sn_sus_plot,height=4,width=7)
+ggsave(paste0("figures/",modelid,"/sn_sus_mn_",modelid,".png"), sn_sus_plot,height=4,width=7)
 
 
 #############################
@@ -151,7 +182,7 @@ sn_inf_out <- sn_inf_out[!(sn_inf_out$sex == "Male" & sn_inf_out$age %in% c(8,9,
 
 
 sn_inf_plot <- ggplot(data = sn_inf_out) + geom_point(aes(x=year,y=sn_inf,color=age)) + facet_wrap(~ sex)+ theme_bw()
-ggsave(paste0("figures/sn_inf_mn_",modelid,".png"), sn_inf_plot,height=4,width=7)
+ggsave(paste0("figures/",modelid,"/sn_inf_mn_",modelid,".png"), sn_inf_plot,height=4,width=7)
 
 
 
@@ -169,18 +200,12 @@ sh_sus_out <- data.frame(sh_sus = fit_sum[grep("sh_sus", rownames(fit_sum)), 1],
 sh_sus_out$age <- as.factor(sh_sus_out$age)
 sh_sus_out <- sh_sus_out[!(sh_sus_out$sex == "Male" & sh_sus_out$age %in% c(8,9,10)),] 
 
-
 sh_sus_plot <- ggplot(data = sh_sus_out) + geom_point(aes(x=year,y=sh_sus,color=age)) + facet_wrap(~ sex)+ theme_bw()
-ggsave(paste0("figures/sh_sus_mn_",modelid,".png"), sh_sus_plot,height=4,width=7)
-
-
-
-
+ggsave(paste0("figures/",modelid,"/sh_sus_mn_",modelid,".png"), sh_sus_plot,height=4,width=7)
 
 #############################
 ### sh_inf
 #############################
-
 
 sh_inf_out <- data.frame(sh_inf = fit_sum[grep("sh_inf", rownames(fit_sum)), 1],
     sex = rep(c("Female", "Male"), 400/2),
@@ -192,10 +217,11 @@ sh_inf_out <- sh_inf_out[!(sh_inf_out$sex == "Male" & sh_inf_out$age %in% c(8,9,
 
 
 sh_inf_plot <- ggplot(data = sh_inf_out) + geom_point(aes(x=year,y=sh_inf,color=age)) + facet_wrap(~ sex)+ theme_bw()
-ggsave(paste0("figures/sh_inf_mn_",modelid,".png"), sh_inf_plot,height=4,width=7)
+ggsave(paste0("figures/",modelid,"/sh_inf_mn_",modelid,".png"), sh_inf_plot,height=4,width=7)
 
 pdf(paste0("figures/",modelid,"/psi_surv_plots_mn_",modelid,".pdf"))
 psi_plot
+psi_hat_plot
 sn_sus_plot
 sn_inf_plot
 sh_sus_plot
@@ -247,13 +273,13 @@ ggsave(paste0("figures/",modelid,"/age_effect_",modelid,".png"),age_effect_plot)
 ###############################################
 ###############################################
 
-te_indx <- grep("period_effect",rownames(fit_sum))[(nT_period_precollar_ext + 1):(nT_period_overall_ext)]
+te_indx <- grep("period_effect",rownames(fit_sum))[(1):(nT_period_overall)]
 
 period_effect_mean <- fit_sum[te_indx,1] 
 period_effect_lower <- fit_sum[te_indx,4] 
 period_effect_upper <- fit_sum[te_indx,5]
 
-weeks <- 1:nT_period_collar
+weeks <- 1:nT_period_overall
 
 out_period_effect <- data.frame(weeks,period_effect_mean,period_effect_lower,period_effect_upper)
 # out_period_effect_inf_int$disease <- "Infected"
@@ -272,6 +298,46 @@ period_effect_plot
 
 # ggsave("figures/period_effect_inf_int.pdf",period_effect_plot_inf_int)
 ggsave(paste0("figures/",modelid,"/period_effects_",modelid,".png"),period_effect_plot)
+
+
+
+###############################################
+###############################################
+###
+### Plots of period effects for mortality hazard
+### collar data only
+###
+###############################################
+###############################################
+
+te_indx <- grep("period_effect",rownames(fit_sum))[(nT_period_precollar + 1):nT_period_overall]
+
+period_effect_mean <- fit_sum[te_indx,1] 
+period_effect_lower <- fit_sum[te_indx,4] 
+period_effect_upper <- fit_sum[te_indx,5]
+
+weeks <- 1:nT_period_collar
+
+out_collar_period_effect <- data.frame(weeks,period_effect_mean,period_effect_lower,period_effect_upper)
+# out_period_effect_inf_int$disease <- "Infected"
+
+period_effect_collar_plot <- ggplot(data =out_collar_period_effect,aes(x = weeks))+
+  geom_line(aes(x = weeks,y=period_effect_mean),size=1)+
+  geom_ribbon(aes(ymin=period_effect_lower,ymax=period_effect_upper),alpha=.2,linetype=0)+
+  ggtitle("Log Hazard Period Effect Posterior")+xlab("Period (Weeks)")+ylab("Effect Size")+
+  theme_bw()
+  # scale_x_continuous(breaks = seq(0,inf_nT_period,by=104),labels=seq(0,18,by=2))+
+  # scale_color_manual("CWD\nStatus",values = met.brewer("Kandinsky", 2)) +
+  # scale_fill_manual("CWD\nStatus",values = met.brewer("Kandinsky", 2))
+  # theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+period_effect_collar_plot
+
+# ggsave("figures/period_effect_inf_int.pdf",period_effect_plot_inf_int)
+ggsave(paste0("figures/",modelid,"/period_effects_collar_",modelid,".png"),period_effect_collar_plot)
+
+
+
 
 
 
