@@ -1522,7 +1522,7 @@ dSurvival_rec_neg_cens_postno <- nimble::nimbleFunction(
             prob[j] <- (1 - exp(-hazard[j])) * exp(-sum(hazard[1:(j - 1)]))
         }
         prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
-        age_add <- rcat(n = 1, prob[1:ntemp])
+        age_add <- rcat(n = 1, prob_out[1:ntemp])
 
         ###############################################
         ### Survival likelihood  - Susceptible portion 
