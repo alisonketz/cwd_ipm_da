@@ -459,7 +459,7 @@ dSurvival_idead <- nimble::nimbleFunction(
         }
         prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
     }
-    age_add <- rcat(n = 1, prob[1:ntemp])
+    age_add <- rcat(n = 1, prob_out[1:ntemp])
 
     ###############################################
     ### Survival likelihood  - Susceptible portion 
@@ -655,7 +655,7 @@ dSurvival_rec_pos_cens <- nimble::nimbleFunction(
         }
         prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
     # }
-    age_add <- rcat(n = 1, prob[1:ntemp])
+    age_add <- rcat(n = 1, prob_out[1:ntemp])
 
     ###############################################
     ### Survival likelihood  - Susceptible portion 
@@ -1088,7 +1088,7 @@ dSurvival_sus_draw <- nimble::nimbleFunction(
             prob[j] <- (1 - exp(-hazard[j])) * exp(-sum(hazard[1:(j - 1)]))
         }
         prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
-        age_add <- rcat(n = 1, prob[1:ntemp])
+        age_add <- rcat(n = 1, prob_out[1:ntemp])
 
         ###############################################
         ### Survival likelihood  - Susceptible portion 
@@ -1291,16 +1291,15 @@ dSurvival_sus_mort_postno <- nimble::nimbleFunction(
             space)
     }
     p_inf <- 1 - exp(-sum(hazard))
-    gets_infected <- rbinom(1,1,p_inf)
+    gets_infected <- rbinom(1, 1, p_inf)
 
     if(gets_infected == TRUE){
-
         prob[1] <- (1 - exp(-hazard[1]))
         for (j in 2:ntemp) {
             prob[j] <- (1 - exp(-hazard[j])) * exp(-sum(hazard[1:(j - 1)]))
         }
         prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
-        age_add <- rcat(n = 1, prob[1:ntemp])
+        age_add <- rcat(n = 1, prob_out[1:ntemp])
 
         ###############################################
         ### Survival likelihood  - Susceptible portion 
