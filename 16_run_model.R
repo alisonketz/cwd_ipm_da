@@ -206,10 +206,10 @@ nimConsts <- list(n_year = n_year,
 #######################################
 
 initsFun <- function()list(beta_male = rnorm(1, -.5, .01),
-    beta0_sus_temp = rnorm(1, -8, 0.0001),
+    beta0_sus_temp = rnorm(1, -5.5, 0.0001),
     # beta0_survival_sus = rnorm(1, -8, 0.0001),
     sus_mix = 1,
-    beta0_inf_temp = rnorm(1, -7, 0.0001),
+    beta0_inf_temp = rnorm(1, -4, 0.0001),
     # beta0_survival_inf = rnorm(1, -7, 0.0001),
     inf_mix = 1,
     ln_b_age_survival = rnorm(nknots_age) * 10^-4,
@@ -235,7 +235,7 @@ initsFun <- function()list(beta_male = rnorm(1, -.5, .01),
                   rnorm(1, -6.8, sd = .1),
                   rnorm(1, -7.2, sd = .1),
                   rnorm(1, -8, sd = .1)) - 1.5,
-    tau_period_precollar = rgamma(1, 1, 1),
+    # tau_period_precollar = rgamma(1, 1, 1),
     # period_annual_survival = rnorm(n_year_precollar + 1, .1),
     beta0_cause = rnorm(1, -2.8, .1),
     beta_cause_male = rnorm(1, 0, .1),
@@ -338,7 +338,7 @@ confMCMC <- configureMCMC(Rmodel,
 nimMCMC <- buildMCMC(confMCMC)
 CnimMCMC <- compileNimble(nimMCMC,
                          project = Rmodel)
-for(i in 1:10){beepr::beep(1)}
+for (i in 1:10) {beepr::beep(1)}
 
 reps <- 1000
 nbin <- reps * .5

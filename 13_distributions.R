@@ -431,65 +431,89 @@ dSurvival_idead <- nimble::nimbleFunction(
         log = double()
         ) {
 
-    ntemp <- s_age - e_age
-    prob <- nimNumeric(ntemp)
-    prob_out <- nimNumeric(ntemp)
-    hazard <- nimNumeric(ntemp)
-    if(sex == 0){
+    ntemp <- s_age - e_age - 1
+    if(ntemp > 1) {
+        prob <- nimNumeric(ntemp)
+        prob_out <- nimNumeric(ntemp)
+        hazard <- nimNumeric(ntemp)
+        if(sex == 0) {
 
-        hazard[1:ntemp] <- exp(f_age_foi[age_lookup_f[e_age:(s_age - 1)]] +
-            f_period_foi[period_lookup_foi[(e_period):
-                                           (s_period - 1)]] +
-            space)
+            hazard[1:ntemp] <- exp(f_age_foi[age_lookup_f[e_age:(s_age - 2)]] +
+                f_period_foi[period_lookup_foi[(e_period):
+                                            (s_period - 2)]] +
+                space)
 
-        prob[1] <- (1 - exp(-hazard[1]))
-        for (j in 2:ntemp) {
-            prob[j] <- (1 - exp(-hazard[j])) * exp(sum(-hazard[1:(j - 1)]))
+            prob[1] <- (1 - exp(-hazard[1]))
+            for (j in 2:ntemp) {
+                prob[j] <- (1 - exp(-hazard[j])) * exp(sum(-hazard[1:(j - 1)]))
+            }
+            prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
+        } else {
+            hazard[1:ntemp] <- exp(m_age_foi[age_lookup_m[e_age:(s_age - 2)]] +
+                m_period_foi[period_lookup_foi[(e_period):
+                                            (s_period - 2)]] +
+                space)
+
+            prob[1] <- (1 - exp(-hazard[1]))
+            for (j in 2:ntemp) {
+                prob[j] <- (1 - exp(-hazard[j])) * exp(sum(-hazard[1:(j - 1)]))
+            }
+            prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
         }
-        prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
-    } else {
-        hazard[1:ntemp] <- exp(m_age_foi[age_lookup_m[e_age:(s_age - 1)]] +
-            m_period_foi[period_lookup_foi[(e_period):
-                                           (s_period - 1)]] +
-            space)
+        age_add <- rcat(n = 1, prob_out[1:ntemp])
 
-        prob[1] <- (1 - exp(-hazard[1]))
-        for (j in 2:ntemp) {
-            prob[j] <- (1 - exp(-hazard[j])) * exp(sum(-hazard[1:(j - 1)]))
+        ###############################################
+        ### Survival likelihood  - Susceptible portion 
+        ###############################################
+
+        UCH_sus <- nimNumeric(nT_age_surv)
+        for (k in e_age:(e_age + age_add - 1)) {
+            UCH_sus[k] <- exp(beta0_survival_sus +
+                        age_effect_survival[k] +
+                        period_effect_survival[k + age2date] +
+                        beta_male * sex)
         }
-        prob_out[1:ntemp] <- prob[1:ntemp] / sum(prob[1:ntemp])
-    }
-    age_add <- rcat(n = 1, prob_out[1:ntemp])
+        lik_sus <- -sum(UCH_sus[e_age:(e_age + age_add - 1)])
 
-    ###############################################
-    ### Survival likelihood  - Susceptible portion 
-    ###############################################
+        ###############################################
+        ### Survival likelihood  - Infected portion 
+        ###############################################
 
-    UCH_sus <-nimNumeric(nT_age_surv)
-    for (k in e_age:(e_age + age_add - 1)) {
-        UCH_sus[k] <- exp(beta0_survival_sus + 
-                      age_effect_survival[k] +
-                      period_effect_survival[k + age2date] +
+        UCH_inf <- nimNumeric(nT_age_surv)
+        for (k in (e_age + age_add):(s_age - 1)) {
+            UCH_inf[k] <- exp(beta0_survival_inf + 
+                        age_effect_survival[k] +
+                        period_effect_survival[k + age2date] +
+                        beta_male * sex)
+        }
+        # total prob of surviving
+        if((e_age + age_add) == (s_age - 1)) {
+            lik_inf_alive <- 0
+            p_inf_dead <- 1 - exp(-UCH_inf[(s_age - 1)])
+            lik_inf_dead <- log(p_inf_dead)
+        }
+        else{
+            lik_inf_alive <- -sum(UCH_inf[(e_age + age_add):(r_age - 1)])
+            p_inf_dead <- 1 - exp(-sum(UCH_inf[(r_age):(s_age - 1)]))
+            lik_inf_dead <- log(p_inf_dead) 
+        }
+
+    } else{
+        UCH_sus <- nimNumeric(1)
+        UCH_inf <- nimNumeric(1)
+        UCH_sus[1] <- exp(beta0_survival_sus +
+                      age_effect_survival[e_age] +
+                      period_effect_survival[e_age + age2date] +
                       beta_male * sex)
-    }
-    # total prob of surviving
-    lik_sus <- -sum(UCH_sus[e_age:(e_age + age_add - 1)])
-
-    ###############################################
-    ### Survival likelihood  - Infected portion 
-    ###############################################
-
-    UCH_inf <- nimNumeric(nT_age_surv)
-    for (k in (e_age + age_add):(s_age - 1)) {
-        UCH_inf[k] <- exp(beta0_survival_inf + 
-                      age_effect_survival[k] +
-                      period_effect_survival[k + age2date] +
+        lik_sus <- -UCH_sus[1]
+        UCH_inf[1] <- exp(beta0_survival_inf +
+                      age_effect_survival[e_age + 1] +
+                      period_effect_survival[e_age + 1 + age2date] +
                       beta_male * sex)
+        p_inf_dead <- 1 - exp(-UCH_inf[1])
+        lik_inf_dead <- log(p_inf_dead)
+        lik_inf_alive  <- 0
     }
-    # total prob of surviving
-    lik_inf_alive <- -sum(UCH_inf[(e_age + age_add):(r_age - 1)])
-    p_inf_dead <- 1 - exp(-sum(UCH_inf[(r_age):(s_age - 1)]))
-    lik_inf_dead <- log(p_inf_dead) 
 
     #total log likelihood
     logL <- lik_sus + lik_inf_alive + lik_inf_dead
@@ -497,7 +521,6 @@ dSurvival_idead <- nimble::nimbleFunction(
     returnType(double())
     if(log) return(logL) else return(exp(logL))    ## return log-likelihood
   })
-
 
 nimble::registerDistributions(list(
     dSurvival_idead = list(
@@ -556,37 +579,67 @@ nimble::registerDistributions(list(
 assign('dSurvival_idead', dSurvival_idead, envir = .GlobalEnv)
 
 
-# i=1
-# space_test <- c(0,-.5)
-# starttime <- Sys.time()
-# test <- dSurvival_idead(1,
-#         e_age = d_fit_idead$left_age_e[i],
-#         r_age = d_fit_idead$right_age_r[i],
-#         s_age = d_fit_idead$right_age_s[i],
-#         e_period = d_fit_idead$left_period_e[i],
-#         s_period = d_fit_idead$right_period_s[i],
-#         sex = d_fit_idead$sex[i],
-#         age2date = d_fit_idead$age2date[i],
-#         age_effect_survival = age_effect_survival_test,
-#         period_effect_survival = period_effect_survival_test,
-#         nT_age_surv = nT_age_surv,
-#         beta0_survival_inf = beta0_survival_inf,
-#         beta0_survival_sus = beta0_survival_sus,
-#         beta_male = beta_male,
-#         f_age_foi = f_age_foi,
-#         m_age_foi = m_age_foi,
-#         f_period_foi = f_period_foi,
-#         m_period_foi = m_period_foi,
-#         nT_period_overall = nT_period_overall,
-#         period_lookup_foi = period_lookup_foi,
-#         space = space_test[d_fit_idead$study_area[i]],
-#         age_lookup_f = age_lookup_f,
-#         age_lookup_m = age_lookup_m,
-#         log = TRUE
-# )
-# (endtime <- Sys.time() - starttime)
-# test
+i=108
+space_test <- c(0,-.5)
+starttime <- Sys.time()
+test <- dSurvival_idead(1,
+        e_age = d_fit_idead$left_age_e[i],
+        r_age = d_fit_idead$right_age_r[i],
+        s_age = d_fit_idead$right_age_s[i],
+        e_period = d_fit_idead$left_period_e[i],
+        s_period = d_fit_idead$right_period_s[i],
+        sex = d_fit_idead$sex[i],
+        age2date = d_fit_idead$age2date[i],
+        age_effect_survival = age_effect_survival_test,
+        period_effect_survival = period_effect_survival_test,
+        nT_age_surv = nT_age_surv,
+        beta0_survival_inf = beta0_survival_inf,
+        beta0_survival_sus = beta0_survival_sus,
+        beta_male = beta_male,
+        f_age_foi = f_age_foi,
+        m_age_foi = m_age_foi,
+        f_period_foi = f_period_foi,
+        m_period_foi = m_period_foi,
+        nT_period_overall = nT_period_overall,
+        period_lookup_foi = period_lookup_foi,
+        space = space_test[d_fit_idead$study_area[i]],
+        age_lookup_f = age_lookup_f,
+        age_lookup_m = age_lookup_m,
+        log = TRUE
+)
+(endtime <- Sys.time() - starttime)
+test
+test <- c()
+for(i in 1:nrow(d_fit_idead)){
 
+test[i] <- dSurvival_idead(1,
+        e_age = d_fit_idead$left_age_e[i],
+        r_age = d_fit_idead$right_age_r[i],
+        s_age = d_fit_idead$right_age_s[i],
+        e_period = d_fit_idead$left_period_e[i],
+        s_period = d_fit_idead$right_period_s[i],
+        sex = d_fit_idead$sex[i],
+        age2date = d_fit_idead$age2date[i],
+        age_effect_survival = age_effect_survival_test,
+        period_effect_survival = period_effect_survival_test,
+        nT_age_surv = nT_age_surv,
+        beta0_survival_inf = beta0_survival_inf,
+        beta0_survival_sus = beta0_survival_sus,
+        beta_male = beta_male,
+        f_age_foi = f_age_foi,
+        m_age_foi = m_age_foi,
+        f_period_foi = f_period_foi,
+        m_period_foi = m_period_foi,
+        nT_period_overall = nT_period_overall,
+        period_lookup_foi = period_lookup_foi,
+        space = space_test[d_fit_idead$study_area[i]],
+        age_lookup_f = age_lookup_f,
+        age_lookup_m = age_lookup_m,
+        log = TRUE
+)
+}
+# (endtime <- Sys.time() - starttime)
+test
 
 ##################################################################
 ###
