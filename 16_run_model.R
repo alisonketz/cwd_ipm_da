@@ -213,8 +213,14 @@ initsFun <- function()list(beta_male = rnorm(1, -.5, .01),
     # beta0_survival_inf = rnorm(1, -7, 0.0001),
     inf_mix = 1,
     ln_b_age_survival = rnorm(nknots_age) * 10^-4,
-    b_period_survival = rnorm(nknots_period) * 10^-4,
-    tau_period_survival = runif(1, .1, 1),
+    # b_period_survival = rnorm(nknots_period) * 10^-4,
+    # tau_period_survival = runif(1, .1, 1),
+    beta_harvest_gun = rnorm(1, 0, sd = 1),
+    beta_harvest_ng = rnorm(1, 0, sd = 1),
+    mix_survival = 1,
+    ln_sk_period = runif(1, .1, 1),
+    sda_period = runif(1, .1, 1),
+    alpha_period = rnorm(nknots_period, 0, 1),
     tau_age_survival = runif(1, .1, .4),
     tau_age_foi_male = runif(1, 1.5, 1.7),
     tau_age_foi_female = runif(1, 2.7, 4.2),
@@ -340,8 +346,8 @@ CnimMCMC <- compileNimble(nimMCMC,
                          project = Rmodel)
 for (i in 1:10) {beepr::beep(1)}
 
-reps <- 1000
-nbin <- reps * .5
+reps <- 2000
+nbin <- 0#reps * .5
 n_chains <- 1
 
 set.seed(1001)
