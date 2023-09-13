@@ -579,67 +579,67 @@ nimble::registerDistributions(list(
 assign('dSurvival_idead', dSurvival_idead, envir = .GlobalEnv)
 
 
-i=108
-space_test <- c(0,-.5)
-starttime <- Sys.time()
-test <- dSurvival_idead(1,
-        e_age = d_fit_idead$left_age_e[i],
-        r_age = d_fit_idead$right_age_r[i],
-        s_age = d_fit_idead$right_age_s[i],
-        e_period = d_fit_idead$left_period_e[i],
-        s_period = d_fit_idead$right_period_s[i],
-        sex = d_fit_idead$sex[i],
-        age2date = d_fit_idead$age2date[i],
-        age_effect_survival = age_effect_survival_test,
-        period_effect_survival = period_effect_survival_test,
-        nT_age_surv = nT_age_surv,
-        beta0_survival_inf = beta0_survival_inf,
-        beta0_survival_sus = beta0_survival_sus,
-        beta_male = beta_male,
-        f_age_foi = f_age_foi,
-        m_age_foi = m_age_foi,
-        f_period_foi = f_period_foi,
-        m_period_foi = m_period_foi,
-        nT_period_overall = nT_period_overall,
-        period_lookup_foi = period_lookup_foi,
-        space = space_test[d_fit_idead$study_area[i]],
-        age_lookup_f = age_lookup_f,
-        age_lookup_m = age_lookup_m,
-        log = TRUE
-)
-(endtime <- Sys.time() - starttime)
-test
-test <- c()
-for(i in 1:nrow(d_fit_idead)){
-
-test[i] <- dSurvival_idead(1,
-        e_age = d_fit_idead$left_age_e[i],
-        r_age = d_fit_idead$right_age_r[i],
-        s_age = d_fit_idead$right_age_s[i],
-        e_period = d_fit_idead$left_period_e[i],
-        s_period = d_fit_idead$right_period_s[i],
-        sex = d_fit_idead$sex[i],
-        age2date = d_fit_idead$age2date[i],
-        age_effect_survival = age_effect_survival_test,
-        period_effect_survival = period_effect_survival_test,
-        nT_age_surv = nT_age_surv,
-        beta0_survival_inf = beta0_survival_inf,
-        beta0_survival_sus = beta0_survival_sus,
-        beta_male = beta_male,
-        f_age_foi = f_age_foi,
-        m_age_foi = m_age_foi,
-        f_period_foi = f_period_foi,
-        m_period_foi = m_period_foi,
-        nT_period_overall = nT_period_overall,
-        period_lookup_foi = period_lookup_foi,
-        space = space_test[d_fit_idead$study_area[i]],
-        age_lookup_f = age_lookup_f,
-        age_lookup_m = age_lookup_m,
-        log = TRUE
-)
-}
+# i=108
+# space_test <- c(0,-.5)
+# starttime <- Sys.time()
+# test <- dSurvival_idead(1,
+#         e_age = d_fit_idead$left_age_e[i],
+#         r_age = d_fit_idead$right_age_r[i],
+#         s_age = d_fit_idead$right_age_s[i],
+#         e_period = d_fit_idead$left_period_e[i],
+#         s_period = d_fit_idead$right_period_s[i],
+#         sex = d_fit_idead$sex[i],
+#         age2date = d_fit_idead$age2date[i],
+#         age_effect_survival = age_effect_survival_test,
+#         period_effect_survival = period_effect_survival_test,
+#         nT_age_surv = nT_age_surv,
+#         beta0_survival_inf = beta0_survival_inf,
+#         beta0_survival_sus = beta0_survival_sus,
+#         beta_male = beta_male,
+#         f_age_foi = f_age_foi,
+#         m_age_foi = m_age_foi,
+#         f_period_foi = f_period_foi,
+#         m_period_foi = m_period_foi,
+#         nT_period_overall = nT_period_overall,
+#         period_lookup_foi = period_lookup_foi,
+#         space = space_test[d_fit_idead$study_area[i]],
+#         age_lookup_f = age_lookup_f,
+#         age_lookup_m = age_lookup_m,
+#         log = TRUE
+# )
 # (endtime <- Sys.time() - starttime)
-test
+# test
+# test <- c()
+# for(i in 1:nrow(d_fit_idead)){
+
+# test[i] <- dSurvival_idead(1,
+#         e_age = d_fit_idead$left_age_e[i],
+#         r_age = d_fit_idead$right_age_r[i],
+#         s_age = d_fit_idead$right_age_s[i],
+#         e_period = d_fit_idead$left_period_e[i],
+#         s_period = d_fit_idead$right_period_s[i],
+#         sex = d_fit_idead$sex[i],
+#         age2date = d_fit_idead$age2date[i],
+#         age_effect_survival = age_effect_survival_test,
+#         period_effect_survival = period_effect_survival_test,
+#         nT_age_surv = nT_age_surv,
+#         beta0_survival_inf = beta0_survival_inf,
+#         beta0_survival_sus = beta0_survival_sus,
+#         beta_male = beta_male,
+#         f_age_foi = f_age_foi,
+#         m_age_foi = m_age_foi,
+#         f_period_foi = f_period_foi,
+#         m_period_foi = m_period_foi,
+#         nT_period_overall = nT_period_overall,
+#         period_lookup_foi = period_lookup_foi,
+#         space = space_test[d_fit_idead$study_area[i]],
+#         age_lookup_f = age_lookup_f,
+#         age_lookup_m = age_lookup_m,
+#         log = TRUE
+# )
+# }
+# # (endtime <- Sys.time() - starttime)
+# test
 
 ##################################################################
 ###

@@ -144,7 +144,7 @@ for(i in 1:n_year){
     traceplot(out[, paste0("f_period_foi[",i,"]")], ylab = paste0("f_period_foi[",i,"]"))
 }
 for(i in 1:n_year){
-    traceplot(out[, paste0("m_period_foi[",i,"]")], ylab = paste0("f_period_foi[",i,"]"))
+    traceplot(out[, paste0("m_period_foi[",i,"]")], ylab = paste0("m_period_foi[",i,"]"))
 }
 dev.off()
 
