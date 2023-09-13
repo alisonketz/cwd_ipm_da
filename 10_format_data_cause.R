@@ -201,6 +201,11 @@ for(i in 1:n_year){
                    d_fit_season$gun_end[i])] <- 1
 }
 
+
+Z_collar_ng <- Z_cause_ng
+Z_collar_ng[Z_cause_gun==1] <- 0 
+Z_collar_gun <- Z_cause_gun
+
 ###
 ### this should be used in the likelihoods to ensure use
 ### the time varying hunterharvest only collar data to estimate the

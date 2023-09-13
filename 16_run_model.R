@@ -192,12 +192,15 @@ nimConsts <- list(n_year = n_year,
     sect_rec_neg_cens_postno = d_fit_rec_neg_cens_postno$study_area,
     records_cause = records_cause,
     interval_cause = d_fit_hh$right_period_s - 1,
-    period_annual_survival = rep(0,n_year_precollar + 1)#,
+    period_annual_survival = rep(0,n_year_precollar + 1),
     # f_period_foi = rep(0, n_year),
     # m_period_foi = rep(0, n_year)
     # indx_mat_pe_surv = indx_mat_pe_surv,
     # intvl_step_yr = intvl_step_yr_weekly#,
     # num_foi_cal = num_foi_cal
+    Z_collar_gun = Z_collar_gun,
+    Z_collar_ng = Z_collar_ng,
+    nconst = 1 / sqrt(2 * pi)
     )
 
 
@@ -317,6 +320,8 @@ parameters <- c(
               "alpha_period",
               "alphau_period",
               "ratioinf_period",
+              "beta_harvest_gun",
+              "beta_harvest_ng",
               # "period_effect_surv",
               # "tau_period_precollar",
               "period_effect_survival",
@@ -357,7 +362,7 @@ CnimMCMC <- compileNimble(nimMCMC,
                          project = Rmodel)
 for (i in 1:10) {beepr::beep(1)}
 
-reps <- 2000
+reps <- 1000
 nbin <- 0#reps * .5
 n_chains <- 1
 
